@@ -25,9 +25,9 @@
 		<![endif]-->
        
              
-       <!--script src="<?=$this->getThemePath()?>/css/jquery.parallax.css"></script>
-       <script src="<?=$this->getThemePath()?>/js/jquery.event.frame.js"></script>
-       <script src="<?=$this->getThemePath()?>/js/jquery.parallax.js"></script>
+       <!--script src="<?/*=$this->getThemePath()*/?>/css/jquery.parallax.css"></script>
+       <script src="<?/*=$this->getThemePath()*/?>/js/jquery.event.frame.js"></script>
+       <script src="<?/*=$this->getThemePath()*/?>/js/jquery.parallax.js"></script>
        <script>
        jQuery(document).ready(function(){
        jQuery('#parallax .parallax-layer')
@@ -48,6 +48,7 @@
             </tr>
         </tbody></table> 
 		<div class="navigation">
+                                            
                     <img alt="navigate_img" src="<?=$this->getThemePath()?>/images/navigate.png">
 			<ul>  
 				<li>  
@@ -234,7 +235,7 @@
 					</div>
 					<div class="clear"></div>
 					<div class="showcase-sub-container">
-						<div class="pic-frame rounded">
+						<div class="showcase-portfolio-frame rounded">
 							<?php
                                                         $a = new Area('pic-frame rounded 1');
                                                         $a->display($c);

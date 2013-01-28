@@ -47,7 +47,17 @@ a:active
 .section
 {
 	width: 100%;
-	height: 1100px;
+	min-height: 1100px;
+}
+.section-top-portafolio
+{
+	width: 100%;
+	height: 110px;
+}
+.section-portafolio
+{
+	width: 100%;
+	min-height: 110px;
 }
 .first-section
 {
@@ -64,7 +74,7 @@ a:active
 }
 .container 
 {
-	width: 980px;
+    width: 980px;
     margin:0 auto;
 }
 .showcase-sub-container
@@ -72,7 +82,18 @@ a:active
 	width: 100%;
 	padding-top: 70px;
 }
-
+.showcase-sub-container-portafolio
+{
+	width: 100%;
+	padding-top: 70px;
+        margin-top: 170px;
+}
+showcase-sub-container-portafolio-text
+{
+	width: 100%;
+	padding-top: 70px;
+        margin-top: 90px;
+}
 /******************************************************************************/
 /*  SUBHEADER                                                                 */
 /******************************************************************************/
@@ -89,6 +110,7 @@ a:active
 	background: transparent url(../images/subheader/icon_plus.png) no-repeat;
 	vertical-align: middle;	
 }
+
 .subheader-text
 {
 	display: inline-block;
@@ -116,6 +138,52 @@ a:active
 	height: 30px;
 	margin-top: 50px;
 	background: transparent url(../images/subheader/separator.png) no-repeat;	
+}
+
+/******************************************************************************/
+/*  SUBHEADER PORTFOLIO                                                       */
+/******************************************************************************/
+.subheader-portfolio
+{
+	margin-top: 70px;	
+}
+.subheader-portfolio-icon
+{
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	margin-right: 10px;
+	background: transparent url(../images/subheader/icon_plus_portafolio.png) no-repeat;
+	vertical-align: middle;	
+}
+
+.subheader-portfolio-text
+{
+	display: inline-block;
+	font-family: 'TeXGyreAdventorBold', Arial, Helvetica, sans-serif;
+	font-size: 55px;
+	letter-spacing: -0.04em;
+	vertical-align: middle;
+}
+.subheader-portfolio-text img
+{
+	vertical-align: middle;
+}
+.subheader-portfolio-text span 
+{
+	display: inline-block;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-style: italic;
+	font-size: 19px;
+	letter-spacing: -0.02em;
+	vertical-align: middle;	
+}
+.subheader-separator-portafolio
+{
+	width: 980px;
+	height: 30px;
+	margin-top: 50px;
+	background: transparent url(../images/subheader/separetor_portafolio.png) no-repeat;	
 }
 
 /******************************************************************************/
@@ -247,7 +315,9 @@ a:active
 /*  BACKGROUND                                                                */
 /******************************************************************************/
 .first-section {background-color: #FFF;}
+.first-section-portafolio {background-color: #68C3A0;}
 .about {background-color: #68C3A0;}
+.portafolio {background-color: #FFF;}
 .services {background-color: #DEB5F9;}
 .showcase {background-color: #789DEB;}
 .our-team {background-color: #68C3A0;}
@@ -510,6 +580,43 @@ div.nomargin
 {
 	color: #273c66;
 }
+/******************************************************************************/
+/*  Showcase portfolio                                                               */
+/******************************************************************************/
+.showcase-portfolio
+{
+	position: relative;
+	width: 260px;
+	height: 260px;
+	margin-bottom: 15px;
+}
+.showcase-portfolio a
+{
+	display: block;
+	width: 260px;
+	height: 260px;	
+}
+.showcase-portfolio-frame 
+{
+	position: relative;
+	float: left;
+	width: 260px;
+	height: 334px;
+	margin: 0 40px 40px 0;
+	font-size: 14px;
+	background-color: #ffffff;
+	color: #a8a8a8;
+	border: 20px solid white;
+	-moz-border-radius: 10px; /* Firefox */
+	-webkit-border-radius: 10px; /* Safari, Chrome */
+	border-radius: 10px; /* CSS3 */
+}
+.showcase-portfolio-frame span
+{
+	color: #273c66;
+}
+
+
 span.roll 
 {
 	position: absolute;
