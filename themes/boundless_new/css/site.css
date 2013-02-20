@@ -47,7 +47,7 @@ a:active
 .section
 {
 	width: 100%;
-	min-height: 1100px;
+	
 }
 .section-slide
 {
@@ -64,20 +64,13 @@ a:active
 	width: 100%;
 	min-height: 110px;
 }
-.first-section
-{
-	height: 695px;
-}
 .showcase
 {
 	height: 1750px;
 }
-
-.about
-{
-	height: 2111px;
+.creative{
+    
 }
-
 #scrollable
 {
     width: 100%;
@@ -111,7 +104,16 @@ showcase-sub-container-portafolio-text
 {
 	margin-top: 70px;	
 }
-.subheader-icon
+.subheader-about-icon
+{
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	margin-right: 10px;
+	background: transparent url(../images/subheader/icon_plus_about.png) no-repeat;
+	vertical-align: middle;	
+}
+.subheader-contact-icon
 {
 	display: inline-block;
 	width: 40px;
@@ -138,7 +140,7 @@ showcase-sub-container-portafolio-text
 	background: transparent url(../images/subheader/icon_plus_design.png) no-repeat;
 	vertical-align: middle;	
 }
-.subheader-integrated-icon
+.subheader-commerce-icon
 {
 	display: inline-block;
 	width: 40px;
@@ -147,7 +149,7 @@ showcase-sub-container-portafolio-text
 	background: transparent url(../images/subheader/icon_plus_integrated.png) no-repeat;
 	vertical-align: middle;	
 }
-.subheader-profitable-icon
+.subheader-marketing-icon
 {
 	display: inline-block;
 	width: 40px;
@@ -186,14 +188,55 @@ showcase-sub-container-portafolio-text
 	letter-spacing: -0.02em;
 	vertical-align: middle;	
 }
-.subheader-separator
+.subheader-separator-about
+{
+	width: 980px;
+	height: 30px;
+	margin-top: 50px;
+	background: transparent url(../images/subheader/about-us-plus.png) no-repeat;	
+}
+.subheader-separator-services
+{
+	width: 980px;
+	height: 30px;
+	margin-top: 50px;
+	background: transparent url(../images/subheader/services-plus.png) no-repeat;	
+}
+.subheader-separator-creative
+{
+	width: 980px;
+	height: 30px;
+	margin-top: 50px;
+	background: transparent url(../images/subheader/design-plus.png) no-repeat;	
+}
+.subheader-separator-commerce
+{
+	width: 980px;
+	height: 30px;
+	margin-top: 50px;
+	background: transparent url(../images/subheader/commerce-plus.png) no-repeat;	
+}
+.subheader-separator-marketing
+{
+	width: 980px;
+	height: 30px;
+	margin-top: 50px;
+	background: transparent url(../images/subheader/marketing-plus.png) no-repeat;	
+}
+.subheader-separator-showcase
+{
+	width: 980px;
+	height: 30px;
+	margin-top: 50px;
+	background: transparent url(../images/subheader/showcase-plus.png) no-repeat;	
+}
+.subheader-separator-contact
 {
 	width: 980px;
 	height: 30px;
 	margin-top: 50px;
 	background: transparent url(../images/subheader/separator.png) no-repeat;	
 }
-
 /******************************************************************************/
 /*  SUBHEADER PORTFOLIO                                                       */
 /******************************************************************************/
@@ -282,10 +325,10 @@ showcase-sub-container-portafolio-text
 {
 	position: relative;
 	display: inline-block;
-    padding: 0.3em .5em 0.3em;
-    text-decoration: none;
-	background-color: #ffffff;
-	color: #888887;
+        padding: 0.3em .5em 0.3em;
+        text-decoration: none;
+	background-color: #4a4a4a;
+	color: #ffffff;
 	-moz-border-radius: 0 .4em .4em 0;  /* Firefox */
 	-webkit-border-radius: 0 .4em .4em 0; /* Safari, Chrome */
 	border-radius: 0 .4em .4em 0; /* CSS3 */
@@ -294,12 +337,12 @@ showcase-sub-container-portafolio-text
 }
 .navigation a.nav-active
 {
-	color:#d82445;
+	color:#64c2a0;
 }
 .navigation a:hover
 {
-	background-color: #ffffff;
-	color:#d82545;
+	background-color: #4a4a4a;
+	color:#64c2a0;
 }
 .navigation span
 {
@@ -348,9 +391,9 @@ showcase-sub-container-portafolio-text
 }
 .about .summary, .news .summary {color: #4b4d4a;}
 .services .summary {color: #4c4c4c;}
-.our-team .summary {color: #4d4d4d;}
-.integrated .summary {color: #4d4d4d;}
-.profitable .summary {color: #4d4d4d;}
+.creative .summary {color: #4d4d4d;}
+.commerce .summary {color: #4d4d4d;}
+.marketing .summary {color: #4d4d4d;}
 .showcase .summary {color: #1d1d1d;}
 
 .contact-us .summary {color: #575757;}
@@ -366,6 +409,10 @@ showcase-sub-container-portafolio-text
 	text-align: center;
 	text-transform: uppercase;
 	color: #6e706d;
+        max-width: 284px;
+}
+.team-member-email {
+        margin-left: 10px;
 }
 .design-creative-position
 {
@@ -374,14 +421,14 @@ showcase-sub-container-portafolio-text
 	text-transform: uppercase;
 	color: #8d1b4e;
 }
-.integrated-position
+.commerce-position
 {
 	font-size: 16px;
 	text-align: center;
 	text-transform: uppercase;
 	color: #5e3dd4;
 }
-.profitable-position
+.marketing-position
 {
 	font-size: 16px;
 	text-align: center;
@@ -392,18 +439,18 @@ showcase-sub-container-portafolio-text
 /******************************************************************************/
 /*  BACKGROUND                                                                */
 /******************************************************************************/
-.first-section {background-color: #FFF;}
+.first-section {background-color: #FFF; min-height: 800px;}
 .first-section-portafolio {background-color: #68C3A0;}
-.about {background-color: #c6c8c5;}
-.portafolio {background-color: #FFF;}
-.services {background-color: #aeaeae;}
-.our-team {background-color: #919191;}
-.integrated {background-color: #7c7e7b;}
-.profitable {background-color: #6c6e6b;}
-.showcase {background-color: #575956;}
+.about {background-color: #c6c8c5; min-height: 2312px;}
+.portafolio {background-color: #FFF; min-height: 2271px;}
+.services {background-color: #aeaeae; min-height: 1187px;}
+.creative {background-color: #919191; min-height: 1300px;}
+.commerce {background-color: #7c7e7b; min-height: 1330px;}
+.marketing {background-color: #6c6e6b; min-height: 1330px;}
+.showcase {background-color: #575956; min-height: 1812px;}
 
 /*.news {background-color: #d82545;}*/
-.contact-us {background-color: #434343;}
+.contact-us {background-color: #434343; min-height: 1184px;}
 
 /******************************************************************************/
 /*  HEADER                                                                    */
@@ -424,7 +471,7 @@ showcase-sub-container-portafolio-text
 {    
     width: 487px;
     height: 180px;
-	margin: 0 auto;
+    margin: -30px auto;
 }
 
 /******************************************************************************/
@@ -461,8 +508,8 @@ showcase-sub-container-portafolio-text
 #gallery-nav a
 {	
 	display: inline-block;
-	width: 75px;
-	height: 7px;
+	width: 18px;
+	height: 18px;
 	margin-right: 10px;
 	background-color: #1E1E1E;
 	border: none;

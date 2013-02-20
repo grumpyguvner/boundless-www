@@ -23,7 +23,7 @@
                     'slideInterval' : 5,            //sec
                     'pauseInterval' : 10,           //sec
                     'scrollSpeed' : 'slow',         //slow/fast
-                    'type' : 'horizontal',          //horizontal/vertical/fade
+                    'type' : 'fade',          //horizontal/vertical/fade
                     'autoSlide' : true
                 };   
                 

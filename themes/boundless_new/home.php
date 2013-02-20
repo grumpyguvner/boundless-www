@@ -49,33 +49,30 @@
         </tbody></table> 
 		<div class="navigation">
                                             
-                    <img alt="navigate_img" src="<?=$this->getThemePath()?>/images/navigate.png">
+                    <!--img alt="navigate_img" src="<?/*=$this->getThemePath()*/?>/images/navigate.png"-->
 			<ul>  
 				<li>  
 					<a class="rounded nav-active" href="#take-me-home"><span>Take Me Home</span></a>  
 				</li>  
 				<li>  
-					<a class="rounded" href="#about"><span>About</span></a>  
+					<a class="rounded" href="#about"><span>About Us</span></a>  
 				</li>  
 				<li>  
 					<a class="rounded" href="#services"><span>Services</span></a>    
 				</li>
                                 <li>  
-					<a class="rounded" href="#our-team"><span>Design</span></a>    
+					<a class="rounded" href="#creative"><span>Creative</span></a>    
 				</li>
                                 <li>  
-					<a class="rounded" href="#integrated"><span>Integrated</span></a>    
+					<a class="rounded" href="#commerce"><span>Commerce</span></a>    
 				</li>
                                 <li>  
-					<a class="rounded" href="#profitable"><span>Profitable</span></a>    
+					<a class="rounded" href="#marketing"><span>Marketing</span></a>    
 				</li>
 				<li>  
 					<a class="rounded" href="#showcase"><span>Showcase</span></a>    
 				</li>
-				   
-<!--				<li>  
-					<a href="#news" class="rounded"><span>News</span></a>  
-				</li> -->
+				
 				<li>  
 					<a class="rounded" href="#contact-us"><span>Contact Us</span></a>  
 				</li>  
@@ -255,7 +252,7 @@
                                 
 				</div>
 			</div>
-                        <div id="our-team" class="section our-team">
+                        <div id="creative" class="section creative">
                             <div class="container">
 					<div class="arrow 03">
 						<img alt="arrow_03" src="<?=$this->getThemePath()?>/images/arrow/arrow_03.png">
@@ -323,7 +320,7 @@
 					</div>
 				</div>       
                         </div>
-                    <div id="integrated" class="section integrated">
+                    <div id="commerce" class="section commerce">
                             <div class="container">
 					<div class="arrow 04">
 						<img alt="arrow_04" src="<?=$this->getThemePath()?>/images/arrow/arrow_04.png">
@@ -391,7 +388,7 @@
 					</div>
 				</div>       
                         </div>
-                        <div id="profitable" class="section profitable">
+                        <div id="marketing" class="section marketing">
                             <div class="container">
 					<div class="arrow 05">
 						<img alt="arrow_04" src="<?=$this->getThemePath()?>/images/arrow/arrow_05.png">
