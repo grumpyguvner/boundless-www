@@ -24,7 +24,7 @@ class Concrete5_Controller_Dashboard_Composer_Write extends Controller {
 				$this->error->add($valt->getErrorMessage());
 			}
 			
-			if ($this->post("ccm-submit-publish")) {
+			if ($this->post("ccm-publish-draft")) {
 				if (!$vtex->notempty($this->post('cName'))) {
 					$this->error->add(t('You must provide a name for your page before you can publish it.'));
 				}
@@ -66,22 +66,51 @@ class Concrete5_Controller_Dashboard_Composer_Write extends Controller {
 					$handle = Loader::helper('text')->urlify($this->post('cName'));
 				}
 
-				$handle = str_replace('-', PAGE_PATH_SEPARATOR, $handle);		
-				$data = array('cDatePublic' => Loader::helper('form/date_time')->translate('cDatePublic'), 'cHandle' => $handle, 'cName' => $this->post('cName'), 'cDescription' => $this->post('cDescription'));
+				$handle = str_replace('-', PAGE_PATH_SEPARATOR, $handle);
+
+				$data = array();
+				$pk = PermissionKey::getByHandle('edit_page_properties');
+				$pk->setPermissionObject($entry);
+				$asl = $pk->getMyAssignment();
+				if ($asl->allowEditName()) { 
+					$data['cName'] = $this->post('cName');
+				}
+				if ($asl->allowEditDescription()) { 
+					$data['cDescription'] = $this->post('cDescription');
+				}
+				if ($asl->allowEditPaths()) { 
+					$data['cHandle'] = $handle;
+				}
+				if ($asl->allowEditDateTime()) { 
+					$data['cDatePublic'] = Loader::helper('form/date_time')->translate('cDatePublic');
+				}
+
 				$entry->getVersionToModify();
 				// this is a pain. we have to use composerpage::getbyid again because
 				// getVersionToModify is hard-coded to return a page object
 				$entry = ComposerPage::getByID($entry->getCollectionID(), 'RECENT');
 				$entry->update($data);
-				$this->saveData($entry);
-				if ($this->post('ccm-submit-publish')) {
-					$v = CollectionVersion::get($entry, 'RECENT');
-					$v->approve();
+				$this->saveData($entry, $asl);
+				$u = new User();
+				if ($this->post('ccm-publish-draft')) {
+		
+					Cache::disableCache();
+					Cache::disableLocalCache();
+
 					if ($entry->isComposerDraft()) { 
 						$entry->move($parent);
-						Events::fire('on_composer_publish', $entry);
-						$entry->markComposerPageAsPublished();
 					}
+	
+					$v = CollectionVersion::get($entry, 'RECENT');
+					$pkr = new ApprovePagePageWorkflowRequest();
+					$pkr->setRequestedPage($entry);
+					$pkr->setRequestedVersionID($v->getVersionID());
+					$pkr->setRequesterUserID($u->getUserID());
+					$pkr->trigger();
+
+					Events::fire('on_composer_publish', $entry);
+					$entry->markComposerPageAsPublished();
+
 					$this->redirect('?cID=' . $entry->getCollectionID());
 				} else if ($this->post('autosave')) { 
 					// this is done by javascript. we refresh silently and send a json success back
@@ -90,7 +119,7 @@ class Concrete5_Controller_Dashboard_Composer_Write extends Controller {
 					$obj = new stdClass;
 					$dh = Loader::helper('date');
 					$obj->error = false;
-					$obj->time = $dh->getLocalDateTime('now','g:i a');
+					$obj->time = $dh->getLocalDateTime('now',DATE_APP_GENERIC_T);
 					$obj->timestamp =date('m/d/Y g:i a');
 					print $json->encode($obj);
 					exit;
@@ -132,7 +161,7 @@ class Concrete5_Controller_Dashboard_Composer_Write extends Controller {
 		}
 	}
 	
-	protected function saveData($p) {
+	protected function saveData($p, $permissionsAssignment) {
 		$ct = CollectionType::getByID($p->getCollectionTypeID());
 		$blocks = $p->getComposerBlocks();
 		
@@ -149,8 +178,11 @@ class Concrete5_Controller_Dashboard_Composer_Write extends Controller {
 				
 		Loader::model("attribute/categories/collection");
 		$aks = $ct->getComposerAttributeKeys();
+		$allowedAKIDs = $permissionsAssignment->getAttributesAllowedArray();
 		foreach($aks as $cak) {
-			$cak->saveAttributeForm($p);				
+			if (in_array($cak->getAttributeKeyID(), $allowedAKIDs)) {
+				$cak->saveAttributeForm($p);				
+			}
 		}	
 	}
 	

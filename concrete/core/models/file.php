@@ -1,7 +1,5 @@
 <?php 
 
-Loader::model('file_version');
-
 class Concrete5_Model_File extends Object { 
 
 	const CREATE_NEW_VERSION_THRESHOLD = 300; // in seconds (5 minutes)
@@ -14,10 +12,6 @@ class Concrete5_Model_File extends Object {
 	 * @return File
 	 */
 	public function getByID($fID) {
-		$f = Cache::get('file_approved', $fID);
-		if (is_object($f)) {
-			return $f;
-		}
 		
 		Loader::model('file_set');
 		$db = Loader::db();
@@ -27,7 +21,6 @@ class Concrete5_Model_File extends Object {
 		WHERE Files.fID = ?", array($fID));
 		if ($row['fID'] == $fID) {
 			$f->setPropertiesFromArray($row);
-			Cache::set('file_approved', $fID, $f);
 		} else {
 			$f->error = File::F_ERROR_INVALID_FILE;
 		}
@@ -60,13 +53,7 @@ class Concrete5_Model_File extends Object {
 	}
 	
 	public function refreshCache() {
-		$db = Loader::db();
-		Cache::delete('file_relative_path', $this->getFileID());
-		Cache::delete('file_approved', $this->getFileID());
-		$r = $db->GetCol('select fvID from FileVersions where fID = ?', array($this->getFileID()));
-		foreach($r as $fvID) {
-			Cache::delete('file_version_' . $this->getFileID(), $fvID);	
-		}
+		// NOT NECESSARY
 	}
 	
 	public function reindex() {
@@ -81,7 +68,7 @@ class Concrete5_Model_File extends Object {
 	}
 
 	public static function getRelativePathFromID($fID) {
-		$path = Cache::get('file_relative_path', $fID);
+		$path = CacheLocal::getEntry('file_relative_path', $fID);
 		if ($path != false) {
 			return $path;
 		}
@@ -89,7 +76,7 @@ class Concrete5_Model_File extends Object {
 		$f = File::getByID($fID);
 		$path = $f->getRelativePath();
 		
-		Cache::set('file_relative_path', $fID, $path);
+		CacheLocal::set('file_relative_path', $fID, $path);
 		return $path;
 	}
 
@@ -116,7 +103,6 @@ class Concrete5_Model_File extends Object {
 			$db = Loader::db();
 			$db->Execute('update Files set fslID = ? where fID = ?', array($itemID, $this->fID));
 		}
-		$this->refreshCache();
 	}
 	
 	public function setPassword($pw) {
@@ -124,7 +110,6 @@ class Concrete5_Model_File extends Object {
 		$db = Loader::db();
 		$db->Execute("update Files set fPassword = ? where fID = ?", array($pw, $this->getFileID()));
 		$this->fPassword = $pw;
-		$this->refreshCache();
 	}
 	
 	public function setOriginalPage($ocID) {
@@ -134,7 +119,6 @@ class Concrete5_Model_File extends Object {
 		
 		$db = Loader::db();
 		$db->Execute("update Files set ocID = ? where fID = ?", array($ocID, $this->getFileID()));
-		$this->refreshCache();
 	}
 	
 	public function getOriginalPageObject() {
@@ -161,50 +145,9 @@ class Concrete5_Model_File extends Object {
 				$pk->copyFromFileSetToFile();
 			}	
 		}
-		$this->refreshCache();
 	}
 	
-	public function setPermissions($obj, $canRead, $canSearch, $canWrite, $canAdmin) {
-		$fID = $this->fID;
-		$uID = 0;
-		$gID = 0;
-		$db = Loader::db();
-		if (is_a($obj, 'UserInfo')) {
-			$uID = $obj->getUserID();
-		} else {
-			$gID = $obj->getGroupID();
-		}
-		
-		if ($canRead < 1) {
-			$canRead = 0;
-		}
-		
-		if ($canSearch < 1) {
-			$canSearch = 0;
-		}
-		
-		if ($canWrite < 1) {
-			$canWrite = 0;
-		}
-		
-		if ($canAdmin < 1) {
-			$canAdmin = 0;
-		}
-		
-		$db->Replace('FilePermissions', array(
-			'fID' => $fID,
-			'uID' => $uID, 
-			'gID' => $gID,
-			'canRead' => $canRead,
-			'canSearch' => $canSearch,
-			'canWrite' => $canWrite,
-			'canAdmin' => $canAdmin
-		), 
-		array('fID', 'gID', 'uID'), true);
-		$this->refreshCache();
-		
-	}
-	
+
 	public function getUserID() {
 		return $this->uID;
 	}
@@ -217,11 +160,10 @@ class Concrete5_Model_File extends Object {
 	
 	public function getFileSets() {
 		$db = Loader::db();
-		Loader::model('file_set');
 		$fsIDs = $db->Execute("select fsID from FileSetFiles where fID = ?", array($this->getFileID()));
 		$filesets = array();
-		foreach($fsIDs as $fsID) {
-			$filesets[] = FileSet::getByID($fsID);
+		while ($row = $fsIDs->FetchRow()) {
+			$filesets[] = FileSet::getByID($row['fsID']);
 		}
 		return $filesets;
 	}
@@ -328,8 +270,9 @@ class Concrete5_Model_File extends Object {
 		}
 		
 		// return the new file object
-		return File::getByID($fIDNew);
-		
+		$nf = File::getByID($fIDNew);
+		Events::fire('on_file_duplicate', $this, $nf);
+		return $nf;		
 	}
 	
 	public static function add($filename, $prefix, $data = array()) {
@@ -474,7 +417,9 @@ class Concrete5_Model_File extends Object {
 		$db->Execute("delete from FileAttributeValues where fID = ?", array($this->fID));
 		$db->Execute("delete from FileSetFiles where fID = ?", array($this->fID));
 		$db->Execute("delete from FileVersionLog where fID = ?", array($this->fID));
-		$this->refreshCache();
+		$db->Execute("delete from FileSearchIndexAttributes where fID = ?", array($this->fID));
+		$db->Execute("delete from DownloadStatistics where fID = ?", array($this->fID));
+		$db->Execute("delete from FilePermissionAssignments where fID = ?", array($this->fID));		
 	}
 	
 
@@ -495,15 +440,18 @@ class Concrete5_Model_File extends Object {
 	 * @return FileVersion
 	 */
 	public function getVersion($fvID = null) {
+
 		if ($fvID == null) {
 			$fvID = $this->fvID; // approved version
 		}
-		
-		$fv = Cache::get('file_version_' . $this->getFileID(), $fvID);
-		if (is_object($fv)) {
+		$fv = CacheLocal::getEntry('file', $this->getFileID() . ':' . $fvID);
+		if ($fv === -1) {
+			return false;
+		}
+		if ($fv) {
 			return $fv;
 		}
-		
+
 		$db = Loader::db();
 		$row = $db->GetRow("select * from FileVersions where fvID = ? and fID = ?", array($fvID, $this->fID));
 		$row['fvAuthorName'] = $db->GetOne("select uName from Users where uID = ?", array($row['fvAuthorUID']));
@@ -511,9 +459,8 @@ class Concrete5_Model_File extends Object {
 		$fv = new FileVersion();
 		$row['fslID'] = $this->fslID;
 		$fv->setPropertiesFromArray($row);
-		$fv->populateAttributes();
 		
-		Cache::set('file_version_' . $this->getFileID(), $fvID, $fv);		
+		CacheLocal::set('file', $this->getFileID() . ':' . $fvID, $fv);
 		return $fv;
 	}
 	
@@ -539,7 +486,7 @@ class Concrete5_Model_File extends Object {
 		$db = Loader::db();
 		$limitString = '';
 		if ($limit != false) {
-			$limitString = 'limit ' . $limit;
+			$limitString = 'limit ' . intval($limit);
 		}
 		
 		if (is_object($this) && $this instanceof File) { 

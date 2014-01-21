@@ -39,7 +39,7 @@ $tabs = array();
 	
 <?php  if ($permissionKey->getPermissionKeyDescription()) { ?>
 <div class="dialog-help">
-<?php echo $permissionKey->getPermissionKeyDescription()?>
+<?php echo tc('PermissionKeyDescription', $permissionKey->getPermissionKeyDescription())?>
 </div>
 <?php  } ?>
 

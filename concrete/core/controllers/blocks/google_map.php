@@ -57,7 +57,7 @@
 			$html = Loader::helper('html');
 			$c = Page::getCurrentPage();
 			if (!$c->isEditMode()) {
-				$this->addFooterItem('<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>');
+				$this->addFooterItem('<script type="text/javascript" src="//maps.google.com/maps/api/js?sensor=true"></script>');
 				$this->addFooterItem('<script type="text/javascript"> 
 				function googleMapInit' . $this->bID . '() { 
 				   try{
@@ -74,13 +74,24 @@
 						   position: latlng, 
 						   map: map
 					   });
-				   }catch(e){alert(e.message)} 
+				   }catch(e){
+				   $("#googleMapCanvas'. $this->bID .'").replaceWith("<p>Unable to display map: "+e.message+"</p>")}
 				}
 				$(function() {
-				   googleMapInit' . $this->bID . '();
+					var t;
+					var startWhenVisible = function (){
+						if ($("#googleMapCanvas'. $this->bID .'").is(":visible")){
+							window.clearInterval(t);
+							googleMapInit' . $this->bID . '();
+							return true;
+						} 
+						return false;
+					};
+					if (!startWhenVisible()){
+						t = window.setInterval(function(){startWhenVisible();},100);      
+					}
 				});            
-				</script>');
-				
+				</script>');				
 			}
 		}
 		

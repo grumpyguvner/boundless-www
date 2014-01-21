@@ -265,9 +265,11 @@ class Concrete5_Model_PageTheme extends Object {
 	}
 	
 	public function parseStyleSheet($file, $styles = false) {
-		if (file_exists($this->getThemeDirectory() . '/' . $file)) {
+		$env = Environment::get();
+		$themeRec = $env->getUncachedRecord(DIRNAME_THEMES . '/' . $this->getThemeHandle() . '/' . $file, $this->getPackageHandle());
+		if ($themeRec->exists()) {
 			$fh = Loader::helper('file');
-			$contents = $fh->getContents($this->getThemeDirectory() . '/' . $file);
+			$contents = $fh->getContents($themeRec->file);
 			
 			// replace all url( instances with url starting with path to theme
 			$contents = preg_replace('/(url\(\')([^\)]*)/', '$1' . $this->getThemeURL() . '/$2', $contents);
@@ -360,7 +362,9 @@ class Concrete5_Model_PageTheme extends Object {
 		// now we reset all cached css files in this theme
 		$sheets = $this->getStyleSheets();
 		foreach($sheets as $s) {
-			Cache::delete($this->getThemeHandle(), $s);
+			if (file_exists(DIR_FILES_CACHE . '/' . DIRNAME_CSS . '/' . $this->getThemeHandle() . '/' . $s)) {
+				unlink(DIR_FILES_CACHE . '/' . DIRNAME_CSS . '/' . $this->getThemeHandle() . '/' . $s);
+			}
 		}
 	}
 	
@@ -383,7 +387,9 @@ class Concrete5_Model_PageTheme extends Object {
 		// now we reset all cached css files in this theme
 		$sheets = $this->getStyleSheets();
 		foreach($sheets as $s) {
-			Cache::delete($this->getThemeHandle(), $s);
+			if (file_exists(DIR_FILES_CACHE . '/' . DIRNAME_CSS . '/' . $this->getThemeHandle() . '/' . $s)) {
+				unlink(DIR_FILES_CACHE . '/' . DIRNAME_CSS . '/' . $this->getThemeHandle() . '/' . $s);
+			}
 		}
 	}
 	
@@ -465,15 +471,9 @@ class Concrete5_Model_PageTheme extends Object {
 	 * @return PageTheme
 	 */
 	public function getByHandle($ptHandle) {
-		$pt = Cache::get('page_theme_by_handle', $ptHandle);
-		if ($pt instanceof PageTheme) {
-			return $pt;
-		}
-		
 		$where = 'ptHandle = ?';
 		$args = array($ptHandle);
 		$pt = PageTheme::populateThemeQuery($where, $args);
-		Cache::set('page_theme_by_handle', $ptHandle, $pt);
 		return $pt;
 	}
 	
@@ -482,15 +482,9 @@ class Concrete5_Model_PageTheme extends Object {
 	 * @return PageTheme
 	 */
 	public function getByID($ptID) {
-		$pt = Cache::get('page_theme_by_id', $ptID);
-		if ($pt instanceof PageTheme) {
-			return $pt;
-		}
-		
 		$where = 'ptID = ?';
 		$args = array($ptID);
 		$pt = PageTheme::populateThemeQuery($where, $args);
-		Cache::set('page_theme_by_id', $ptID, $pt);
 		return $pt;
 	}
 	
@@ -657,9 +651,7 @@ class Concrete5_Model_PageTheme extends Object {
 	
 	public function applyToSite() {
 		$db = Loader::db();
-
 		$r = $db->query("update CollectionVersions inner join Pages on CollectionVersions.cID = Pages.cID left join Packages on Pages.pkgID = Packages.pkgID set CollectionVersions.ptID = ? where cIsTemplate = 0 and (Packages.pkgHandle <> 'core' or pkgHandle is null or CollectionVersions.ctID > 0)", array($this->ptID));
-		Cache::flush();
 	}
 	
 	public function getSiteTheme() {
@@ -673,8 +665,6 @@ class Concrete5_Model_PageTheme extends Object {
 		//$pla = new PageThemeArchive($this->ptHandle);
 		//$pla->uninstall();
 		$db->query("delete from PageThemes where ptID = ?", array($this->ptID));
-		Cache::delete('page_theme_by_id', $this->ptID);
-		Cache::delete('page_theme_by_handle', $this->ptHandle);
 		$env = Environment::get();
 		$env->clearOverrideCache();
 

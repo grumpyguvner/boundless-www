@@ -1,15 +1,10 @@
 <?php 
 defined('C5_EXECUTE') or die("Access Denied.");
-class Concrete5_Controller_Dashboard_Pages_Types extends Controller {
-	
+class Concrete5_Controller_Dashboard_Pages_Types extends DashboardBaseController {
 	
 	public function view() { 
 		$this->set("icons", CollectionType::getIcons());
 	}	
-	
-	public function on_start() {
-		$this->set('disableThirdLevelNav', true);
-	}
 	
 	public function delete($ctID, $token = '') {
 		$db = Loader::db();
@@ -25,7 +20,7 @@ class Concrete5_Controller_Dashboard_Pages_Types extends Controller {
 				$ct->delete();
 				$this->redirect("/dashboard/pages/types");
 			} else {
-				$this->set("error", array(t("You must delete all pages of this type, and remove all page versions that contain this page type before deleting this page type.")));
+				$this->error->add(t("You must delete all pages of this type, and remove all page versions that contain this page type before deleting this page type."));
 			}
 		}
 	}
@@ -45,7 +40,44 @@ class Concrete5_Controller_Dashboard_Pages_Types extends Controller {
 	}
 	
 	public function update() {
-	
+		
+		$valt = Loader::helper('validation/token');
+
+		$ct = CollectionType::getByID($_REQUEST['ctID']);
+		$ctName = $_POST['ctName'];
+		$ctHandle = $_POST['ctHandle'];
+		$vs = Loader::helper('validation/strings');
+		
+		if (!$ctHandle) {
+			$this->error->add(t("Handle required."));
+		} else if (!$vs->handle($ctHandle)) {
+			$this->error->add(t('Handles must contain only letters, numbers or the underscore symbol.'));
+		}
+		
+		if (!$ctName) {
+			$this->error->add(t("Name required."));
+		} else if (preg_match('/[<>;{}?"`]/i', $ctName)) {
+			$this->error->add(t('Invalid characters in page type name.'));
+		}
+		
+		
+		if (!$valt->validate('update_page_type')) {
+			$this->error->add($valt->getErrorMessage());
+		}
+		
+		if (!$this->error->has()) {
+			try {
+				if (is_object($ct)) {
+					$ct->update($_POST);
+					$this->redirect('/dashboard/pages/types', 'page_type_updated');
+				}		
+			} catch(Exception $e1) {
+				$this->error->add($e1->getMessage());
+			}
+		}	
+
+		$this->view();
+
 	
 	}
 

@@ -47,16 +47,47 @@
 			return $this->check($ip, ' AND isManual = ? AND expires = ? ',Array(1,0));
 		}
 		
-		public function getRequestIP() {			
-			if ( array_key_exists ('HTTP_CLIENT_IP', $_SERVER ) && $_SERVER['HTTP_CLIENT_IP']){
-				return $_SERVER['HTTP_CLIENT_IP'];
+		/** Checks if an IPv4 address belongs to a private network.
+		* @param string $ip The IP address to check.
+		* @return bool Returns true if $ip belongs to a private network, false if it's a public IP address.
+		*/
+		public function isPrivateIP($ip) {
+			if(empty($ip)) {
+				return false;
 			}
-			else if ( array_key_exists ('HTTP_X_FORWARDED_FOR', $_SERVER ) && $_SERVER['HTTP_X_FORWARDED_FOR']) {
-				return $_SERVER['HTTP_X_FORWARDED_FOR'];
+			if(
+				(strpos($ip, '10.') === 0)
+				||
+				(strpos($ip, '192.168.') === 0)
+				||
+				(preg_match('/^172\.(\d+)\./', $ip, $m) && (intval($m[1]) >= 16) && (intval($m[1]) <= 31))
+			) {
+				return true;
 			}
-			else{
-				return $_SERVER['REMOTE_ADDR'];
+			return false;
+		}
+		
+		/** Returns the client IP address (or an empty string if it can't be found).
+		* @return string
+		*/
+		public function getRequestIP() {
+			$result = '';
+			foreach(array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR') as $index) {
+				if(array_key_exists($index, $_SERVER) && is_string($_SERVER[$index])) {
+					foreach(explode(',', $_SERVER[$index]) as $ip) {
+						$ip = trim($ip);
+						if(strlen($ip)) {
+							if($this->isPrivateIP($ip)) {
+								$result = $ip;
+							}
+							else {
+								return $ip;
+							}
+						}
+					}
+				}
 			}
+			return $result;
 		}
 		
 		public function getErrorMessage() {

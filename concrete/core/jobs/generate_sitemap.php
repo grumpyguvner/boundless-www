@@ -40,8 +40,11 @@ class Concrete5_Job_GenerateSitemap extends Job {
 			$instances = array(
 				'navigation' => Loader::helper('navigation'),
 				'dashboard' => Loader::helper('concrete/dashboard'),
-				'view_page' => PermissionKey::getByHandle('view_page')
+				'view_page' => PermissionKey::getByHandle('view_page'),
+				'guestGroup' => Group::getByID(GUEST_GROUP_ID),
+				'now' => new DateTime('now')
 			);
+			$instances['guestGroupAE'] = array(GroupPermissionAccessEntity::getOrCreate($instances['guestGroup']));
 			$rsPages = $db->query('SELECT cID FROM Pages WHERE (cID > 1) ORDER BY cID');
 			$relName = ltrim(SITEMAPXML_FILE, '\\/');
 			$osName = rtrim(DIR_BASE, '\\/') . '/' . $relName;
@@ -55,7 +58,7 @@ class Concrete5_Job_GenerateSitemap extends Job {
 			if(!$hFile = fopen($osName, 'w')) {
 				throw new Exception(t('Cannot open file %s', $osName));
 			}
-			if(!@fprintf($hFile, '<?php xml version="1.0" encoding="%s"?>' . self::EOL . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', APP_CHARSET)) {
+			if(!@fprintf($hFile, '<'.'?xml version="1.0" encoding="%s"?>' . self::EOL . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', APP_CHARSET)) {
 				throw new Exception(t('Error writing header of %s', $osName));
 			}
 			$addedPages = 0;
@@ -110,6 +113,17 @@ class Concrete5_Job_GenerateSitemap extends Job {
 		if($instances['dashboard']->inDashboard($page)) {
 			return false;
 		}
+		if($page->isInTrash()) {
+			return false;
+		}
+		$pageVersion = $page->getVersionObject();
+		if($pageVersion && !$pageVersion->isApproved()) {
+			return false;
+		}
+		$pubDate = new DateTime($page->getCollectionDatePublic());
+		if($pubDate > $instances['now']) {
+			return false;
+		}
 		if($page->getAttribute('exclude_sitemapxml')) {
 			return false;
 		}
@@ -118,20 +132,18 @@ class Concrete5_Job_GenerateSitemap extends Job {
 		if (!is_object($pa)) {
 			return false;
 		}
-		
-		$guest = Group::getByID(GUEST_GROUP_ID);
-		$accessEntities[] = GroupPermissionAccessEntity::getOrCreate($guest);
-		if (!$pa->validateAccessEntities($accessEntities)) {
+		if (!$pa->validateAccessEntities($instances['guestGroupAE'])) {
 			return false;
 		}
 		$lastmod = new DateTime($page->getCollectionDateLastModified());
 		$changefreq = $page->getAttribute('sitemap_changefreq');
 		$priority = $page->getAttribute('sitemap_priority');
+		$url = SITEMAPXML_BASE_URL . $instances['navigation']->getLinkToCollection($page);
 		if(!@fprintf(
 			$hFile,
 			"%1\$s\t<url>%1\$s\t\t<loc>%2\$s</loc>%1\$s\t\t<lastmod>%3\$s</lastmod>%1\$s\t\t<changefreq>%4\$s</changefreq>%1\$s\t\t<priority>%5\$s</priority>%1\$s\t</url>",
 			self::EOL,
-			$instances['navigation']->getCollectionURL($page),
+			$url,
 			$lastmod->format(DateTime::ATOM),
 			htmlspecialchars(($changefreq == '') ? SITEMAPXML_DEFAULT_CHANGEFREQ : $changefreq),
 			htmlspecialchars(($priority == '') ? SITEMAPXML_DEFAULT_PRIORITY : $priority)

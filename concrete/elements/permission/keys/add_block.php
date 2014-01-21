@@ -24,7 +24,7 @@ $blockTypes = $btl->getBlockTypeList();
 	<?php echo $form->select('blockTypesIncluded[' . $entity->getAccessEntityID() . ']', array('A' => t('All Block Types'), 'C' => t('Custom')), $assignment->getBlockTypesAllowedPermission())?><br/><br/>
 	<ul class="inputs-list" <?php  if ($assignment->getBlockTypesAllowedPermission() != 'C') { ?>style="display: none"<?php  } ?>>
 		<?php  foreach($blockTypes as $bt) { ?>
-			<li><label><input type="checkbox" name="btIDInclude[<?php echo $entity->getAccessEntityID()?>][]" value="<?php echo $bt->getBlockTypeID()?>" <?php  if (in_array($bt->getBlockTypeID(), $assignment->getBlockTypesAllowedArray())) { ?> checked="checked" <?php  } ?> /> <span><?php echo $bt->getBlockTypeName()?></span></label></li>
+			<li><label><input type="checkbox" name="btIDInclude[<?php echo $entity->getAccessEntityID()?>][]" value="<?php echo $bt->getBlockTypeID()?>" <?php  if (in_array($bt->getBlockTypeID(), $assignment->getBlockTypesAllowedArray())) { ?> checked="checked" <?php  } ?> /> <span><?php echo t($bt->getBlockTypeName())?></span></label></li>
 		<?php  } ?>
 	</ul>
 	</div>
@@ -50,7 +50,7 @@ $blockTypes = $btl->getBlockTypeList();
 	<?php echo $form->select('blockTypesExcluded[' . $entity->getAccessEntityID() . ']', array('N' => t('No Block Types'), 'C' => t('Custom')), $assignment->getBlockTypesAllowedPermission())?><br/><br/>
 	<ul class="inputs-list" <?php  if ($assignment->getBlockTypesAllowedPermission() != 'C') { ?>style="display: none"<?php  } ?>>
 		<?php  foreach($blockTypes as $bt) { ?>
-			<li><label><input type="checkbox" name="btIDExclude[<?php echo $entity->getAccessEntityID()?>][]" value="<?php echo $bt->getBlockTypeID()?>" <?php  if (in_array($bt->getBlockTypeID(), $assignment->getBlockTypesAllowedArray())) { ?> checked="checked" <?php  } ?> /> <span><?php echo $bt->getBlockTypeName()?></span></label></li>
+			<li><label><input type="checkbox" name="btIDExclude[<?php echo $entity->getAccessEntityID()?>][]" value="<?php echo $bt->getBlockTypeID()?>" <?php  if (in_array($bt->getBlockTypeID(), $assignment->getBlockTypesAllowedArray())) { ?> checked="checked" <?php  } ?> /> <span><?php echo t($bt->getBlockTypeName())?></span></label></li>
 		<?php  } ?>
 	</ul>
 	</div>

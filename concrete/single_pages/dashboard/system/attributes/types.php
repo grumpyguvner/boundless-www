@@ -18,7 +18,7 @@ echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(t('Attr
 		<?php  foreach($types as $at) { ?>
 
 			<tr>
-				<td><?php echo $at->getAttributeTypeName()?></td>
+				<td><?php echo tc('AttributeTypeName', $at->getAttributeTypeName())?></td>
 				<?php  foreach($categories as $cat) { ?>
 					<td style="width: 1px; text-align: center"><?php echo $form->checkbox($cat->getAttributeKeyCategoryHandle() . '[]', $at->getAttributeTypeID(), $at->isAssociatedWithCategory($cat))?></td>
 				<?php  } ?>
@@ -49,7 +49,7 @@ $types = PendingAttributeType::getList(); ?>
 					<?php 
 					print $form->hidden("atHandle", $at->getAttributeTypeHandle());
 					?>
-					<p style="background-image: url(<?php echo $at->getAttributeTypeIconSRC()?>)" class="ccm-block-type-inner"><?php echo $ch->submit(t("Install"), 'submit', 'right', 'small')?><?php echo $at->getAttributeTypeName()?></p>
+					<p style="background-image: url(<?php echo $at->getAttributeTypeIconSRC()?>)" class="ccm-block-type-inner"><?php echo $ch->submit(t("Install"), 'submit', 'right', 'small')?><?php echo tc('AttributeTypeName', $at->getAttributeTypeName())?></p>
 				</form>
 			</li>
 		<?php  } ?>

@@ -31,6 +31,14 @@
 		}
 
 		/** 
+		 * Loads a job file, either from the site's files or from Concrete's
+		 */
+		public function job($job, $pkgHandle = null) {
+			$env = Environment::get();
+			require_once($env->getPath(DIRNAME_JOBS . '/' . $job . '.php', $pkgHandle));
+		}
+
+		/** 
 		 * Loads a model from either an application, the site, or the core Concrete directory
 		 */
 		public function model($mod, $pkgHandle = null) {
@@ -71,13 +79,17 @@
 		/** 
 		 * Loads an element from C5 or the site
 		 */
-		public function element($file, $args = null, $pkgHandle= null) {
+		public function element($_file, $args = null, $_pkgHandle= null) {
 			if (is_array($args)) {
+				$collisions = array_intersect(array('_file', '_pkgHandle'), array_keys($args));
+				if ($collisions) {
+					throw new Exception(t("Illegal variable name '%s' in element args.", implode(', ', $collisions)));
+				}
+				$collisions = null;
 				extract($args);
 			}
 
-			$env = Environment::get();
-			include($env->getPath(DIRNAME_ELEMENTS . '/' . $file . '.php', $pkgHandle));
+			include(Environment::get()->getPath(DIRNAME_ELEMENTS . '/' . $_file . '.php', $_pkgHandle));
 		}
 
 		 /**
@@ -132,36 +144,38 @@
 		}
 		
 		public static function autoloadCore($class) {
-			if (preg_match('/^Concrete5_Library_(.*)/i', $class, $m)) {
-				$file = self::getFileFromCorePath($m[1]);
-				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_LIBRARIES . '/' . $file . '.php');
-			}
-			if (preg_match('/^Concrete5_Model_(.*)/i', $class, $m)) {
-				$file = self::getFileFromCorePath($m[1]);
+			if (stripos($class, $m = 'Concrete5_Model_') === 0) {
+				$file = self::getFileFromCorePath(substr($class, strlen($m)));
 				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_MODELS . '/' . $file . '.php');
 			}
-			if (preg_match('/^Concrete5_Helper_(.*)/i', $class, $m)) {
-				$file = self::getFileFromCorePath($m[1]);
+			elseif (stripos($class, $m = 'Concrete5_Library_') === 0) {
+				$file = self::getFileFromCorePath(substr($class, strlen($m)));
+				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_LIBRARIES . '/' . $file . '.php');
+			}
+			elseif (stripos($class, $m = 'Concrete5_Helper_') === 0) {
+				$file = self::getFileFromCorePath(substr($class, strlen($m)));
 				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_HELPERS . '/' . $file . '.php');
 			}
-			if (preg_match('/^Concrete5_Job_(.*)/i', $class, $m)) {
-				$file = self::getFileFromCorePath($m[1]);
-				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_JOBS . '/' . $file . '.php');
-			}
-			if (preg_match('/^Concrete5_Controller_Block_(.*)/i', $class, $m)) {
-				$file = self::getFileFromCorePath($m[1]);
+			elseif (stripos($class, $m = 'Concrete5_Controller_Block_') === 0) {
+				$file = self::getFileFromCorePath(substr($class, strlen($m)));
 				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_CONTROLLERS . '/' . DIRNAME_BLOCKS . '/' . $file. '.php');
-			} else if (preg_match('/^Concrete5_Controller_PageType_(.*)/i', $class, $m)) {
-				$file = self::getFileFromCorePath($m[1]);
+			}
+			elseif (stripos($class, $m = 'Concrete5_Controller_PageType_') === 0) {
+				$file = self::getFileFromCorePath(substr($class, strlen($m)));
 				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_CONTROLLERS . '/' . DIRNAME_PAGE_TYPES . '/' . $file. '.php');
-			} else if (preg_match('/^Concrete5_Controller_AttributeType_(.*)/i', $class, $m)) {
-				$file = self::getFileFromCorePath($m[1]);
+			}
+			elseif (stripos($class, $m = 'Concrete5_Controller_AttributeType_') === 0) {
+				$file = self::getFileFromCorePath(substr($class, strlen($m)));
 				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_MODELS . '/' . DIRNAME_ATTRIBUTES . '/' . DIRNAME_ATTRIBUTE_TYPES . '/' . $file . '.php');
-			} else if (preg_match('/^Concrete5_Controller_(.*)/i', $class, $m)) {
-				$file = self::getFileFromCorePath($m[1]);
+			}
+			elseif (stripos($class, $m = 'Concrete5_Controller_') === 0) {
+				$file = self::getFileFromCorePath(substr($class, strlen($m)));
 				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_CONTROLLERS . '/' . DIRNAME_PAGES . '/' . $file . '.php');
 			}
-
+			elseif (stripos($class, $m = 'Concrete5_Job_') === 0) {
+				$file = self::getFileFromCorePath(substr($class, strlen($m)));
+				require_once(DIR_BASE_CORE . '/' . DIRNAME_CORE_CLASSES . '/' . DIRNAME_JOBS . '/' . $file . '.php');
+			}
 		}
 		
 		/** 
@@ -173,19 +187,18 @@
 			if ($cl) {
 				call_user_func_array(array(__CLASS__, $cl[0]), array($cl[1], $cl[2]));
 			} else {
-				/* lets handle some things slightly more dynamically */
-				$txt = self::helper('text');
+				/* lets handle some things slightly more dynamically */				
 				if (strpos($class, 'BlockController') > 0) {
 					$class = substr($class, 0, strpos($class, 'BlockController'));
-					$handle = $txt->uncamelcase($class);
+					$handle = Object::uncamelcase($class);
 					self::block($handle);
 				} else if (strpos($class, 'AttributeType') > 0) {
 					$class = substr($class, 0, strpos($class, 'AttributeType'));
-					$handle = $txt->uncamelcase($class);
+					$handle = Object::uncamelcase($class);
 					$at = AttributeType::getByHandle($handle);
 				} else 	if (strpos($class, 'Helper') > 0) {
 					$class = substr($class, 0, strpos($class, 'Helper'));
-					$handle = $txt->uncamelcase($class);
+					$handle = Object::uncamelcase($class);
 					$handle = preg_replace('/^site_/', '', $handle);
 					self::helper($handle);
 				}
@@ -255,6 +268,11 @@
 					return false;
 				}
 			}
+			
+			//$_dba->LogSQL(true);
+			//global $ADODB_PERF_MIN;
+			//$ADODB_PERF_MIN = 0;
+
 			return $_dba;
 		}
 		

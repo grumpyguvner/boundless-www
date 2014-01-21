@@ -62,12 +62,27 @@ abstract class Concrete5_Model_PermissionKey extends Object {
 		return $this->permissionObject;
 	}
 
-	protected static function load($key, $loadBy = 'pkID') {
-		$pk = Cache::get('permission_key', $key);
-		if ($pk instanceof PermissionKey) {
-			return $pk;
+	public static function loadAll() {
+		$cl = new CacheLocal();
+		$db = Loader::db();
+		$permissionkeys = array();
+		$e = $db->Execute('select pkID, pkName, pkDescription, pkHandle, pkCategoryHandle, pkCanTriggerWorkflow, pkHasCustomClass, PermissionKeys.pkCategoryID, pkCategoryHandle, PermissionKeys.pkgID from PermissionKeys inner join PermissionKeyCategories on PermissionKeyCategories.pkCategoryID = PermissionKeys.pkCategoryID');
+		while ($r = $e->FetchRow()) {
+			$class = Loader::helper('text')->camelcase($r['pkCategoryHandle']) . 'PermissionKey';
+			if ($r['pkHasCustomClass']) {
+				$class = Loader::helper('text')->camelcase($r['pkHandle']) . $class;
+			}
+			$pk = new $class();
+			$pk->setPropertiesFromArray($r);
+
+			$permissionkeys[$r['pkHandle']] = $pk;
+			$permissionkeys[$r['pkID']] = $pk;
 		}
-		
+		CacheLocal::set('permission_keys', false, $permissionkeys);
+		return $permissionkeys;
+	}
+
+	protected static function load($key, $loadBy = 'pkID') {
 		$db = Loader::db();
 		$r = $db->GetRow('select pkID, pkName, pkDescription, pkHandle, pkCategoryHandle, pkCanTriggerWorkflow, pkHasCustomClass, PermissionKeys.pkCategoryID, pkCategoryHandle, PermissionKeys.pkgID from PermissionKeys inner join PermissionKeyCategories on PermissionKeyCategories.pkCategoryID = PermissionKeys.pkCategoryID where ' . $loadBy . ' = ?', array($key));
 		$class = Loader::helper('text')->camelcase($r['pkCategoryHandle']) . 'PermissionKey';
@@ -81,9 +96,6 @@ abstract class Concrete5_Model_PermissionKey extends Object {
 		
 		$pk = new $class();
 		$pk->setPropertiesFromArray($r);
-		
-		Cache::set('permission_key', $key, $pk);
-		
 		return $pk;
 	}
 	
@@ -123,8 +135,8 @@ abstract class Concrete5_Model_PermissionKey extends Object {
 		$category = PermissionKeyCategory::getByID($this->pkCategoryID)->getPermissionKeyCategoryHandle();
 		$pkey = $axml->addChild('permissionkey');
 		$pkey->addAttribute('handle',$this->getPermissionKeyHandle());
-		$pkey->addAttribute('name', $this->getPermissionKeyName());
-		$pkey->addAttribute('description', $this->getPermissionKeyDescription());
+		$pkey->addAttribute('name', tc('PermissionKeyName', $this->getPermissionKeyName()));
+		$pkey->addAttribute('description', tc('PermissionKeyDescription', $this->getPermissionKeyDescription()));
 		$pkey->addAttribute('package', $this->getPackageHandle());
 		$pkey->addAttribute('category', $category);
 		$this->exportAccess($pkey);
@@ -186,17 +198,19 @@ abstract class Concrete5_Model_PermissionKey extends Object {
 	}
 
 	public static function getByID($pkID) {
-		$pk = self::load($pkID);
-		if ($pk->getPermissionKeyID() > 0) {
-			return $pk;
+		$keys = CacheLocal::getEntry('permission_keys', false);
+		if (!is_array($keys)) {
+			$keys = self::loadAll();
 		}
+		return $keys[$pkID];
 	}
 
 	public static function getByHandle($pkHandle) {
-		$pk = self::load($pkHandle, 'pkHandle');
-		if ($pk->getPermissionKeyID() > 0) {
-			return $pk;
+		$keys = CacheLocal::getEntry('permission_keys', false);
+		if (!is_array($keys)) {
+			$keys = self::loadAll();
 		}
+		return $keys[$pkHandle];
 	}
 	
 	/** 
@@ -222,7 +236,7 @@ abstract class Concrete5_Model_PermissionKey extends Object {
 		if ($pkHasCustomClass) {
 			$pkHasCustomClass = 1;
 		} else {
-			$$pkHasCustomClass = 0;
+			$pkHasCustomClass = 0;
 		}
 		$pkCategoryID = $db->GetOne("select pkCategoryID from PermissionKeyCategories where pkCategoryHandle = ?", $pkCategoryHandle);
 		$a = array($pkHandle, $pkName, $pkDescription, $pkCategoryID, $pkCanTriggerWorkflow, $pkHasCustomClass, $pkgID);
@@ -232,8 +246,8 @@ abstract class Concrete5_Model_PermissionKey extends Object {
 		
 		if ($r) {
 			$pkID = $db->Insert_ID();
-			$ak = self::load($pkID);
-			return $ak;
+			$keys = self::loadAll();
+			return $keys[$pkID];
 		}
 	}
 
@@ -270,8 +284,7 @@ abstract class Concrete5_Model_PermissionKey extends Object {
 	public function delete() {
 		$db = Loader::db();
 		$db->Execute('delete from PermissionKeys where pkID = ?', array($this->getPermissionKeyID()));
-		Cache::delete('permission_key', $this->getPermissionKeyID());
-		Cache::delete('permission_key', $this->getPermissionKeyHandle());
+		self::loadAll();
 	}
 	
 	
@@ -290,9 +303,18 @@ abstract class Concrete5_Model_PermissionKey extends Object {
 	
 	public function getPermissionAssignmentObject() {
 		if (is_object($this->permissionObject)) {
-			$class = Loader::helper('text')->camelcase(get_class($this->permissionObject) . 'PermissionAssignment');
-			if (!class_exists($class) && $this->permissionObject instanceof Page) {
-				$class = 'PagePermissionAssignment';
+			if (method_exists($this->permissionObject, 'getPermissionObjectPermissionKeyCategoryHandle')) {
+				$objectClass = Loader::helper('text')->camelcase($this->permissionObject->getPermissionObjectPermissionKeyCategoryHandle());
+			} else {
+				$objectClass = get_class($this->permissionObject);
+			}
+			$class = $objectClass . 'PermissionAssignment';
+			if (!class_exists($class)) {
+				if ($this->permissionObject instanceof Page) {
+					$class = 'PagePermissionAssignment';
+				} else if ($this->permissionObject instanceof Area) {
+					$class = 'AreaPermissionAssignment';
+				}
 			}
 			$targ = new $class();
 			$targ->setPermissionObject($this->permissionObject);

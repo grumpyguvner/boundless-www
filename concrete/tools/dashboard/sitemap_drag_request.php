@@ -164,7 +164,7 @@ if ($successMessage) {
 <?php  } else { ?>
 	<?php echo t('You dragged "%s" onto "%s." What do you wish to do?',$oc->getCollectionName(),$dc->getCollectionName())?>
 <?php  } ?>
-</h2><br/>
+</h3><br/>
 	<form>
 
 		<input type="hidden" name="origCID" id="origCID" value="<?php echo $_REQUEST['origCID']?>" />

@@ -12,7 +12,7 @@ foreach($assignments as $ppc) {
 	?>
 	<tr>
 	<td>
-	<strong><?php echo $pk->getPermissionKeyName()?></strong>
+	<strong><?php echo tc('PermissionKeyName', $pk->getPermissionKeyName())?></strong>
 	<?php echo t('Permission on ')?><?php 
 		if ($pk instanceof AreaPermissionKey) {  ?>
 			<strong><?php echo $pk->getPermissionObject()->getAreaHandle() ?></strong>.
@@ -21,11 +21,11 @@ foreach($assignments as $ppc) {
 			$obj = $pk->getPermissionObject();
 			if ($obj->getBlockName() != '') { ?>
 
-			<?php echo t('the %s block named <strong>%s</strong> in <strong>%s</strong> Area. ', $bt->getBlockTypeName(), $obj->getBlockName(), $pk->getPermissionObject()->getAreaHandle())?>
+			<?php echo t('the %s block named <strong>%s</strong> in <strong>%s</strong> Area. ', t($bt->getBlockTypeName()), $obj->getBlockName(), $pk->getPermissionObject()->getAreaHandle())?>
 			
 			<?php  } else { ?>
 			
-			<?php echo t('<strong>%s Block</strong> in <strong>%s</strong> Area. ', $bt->getBlockTypeName(), $pk->getPermissionObject()->getAreaHandle())?>
+			<?php echo t('<strong>%s Block</strong> in <strong>%s</strong> Area. ', t($bt->getBlockTypeName()), $pk->getPermissionObject()->getAreaHandle())?>
 			
 			<?php  } ?>		
 		<?php  } else { ?>
@@ -48,7 +48,6 @@ foreach($assignments as $ppc) {
 	</tr>
 <?php  } ?>
 </table>
-</div>
 
 <?php  } else { ?>
 	<p><?php echo t('No timed permission assignments')?></p>

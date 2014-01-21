@@ -7,7 +7,7 @@ $previewMode = false;
 
 $fp = FilePermissions::getGlobal();
 if (!$fp->canAccessFileManager()) {
-	die(t("Access Denied."));
+	die(t("Unable to access the file manager."));
 }  
 
 $attribs = FileAttributeKey::getUserAddedList();
@@ -120,7 +120,6 @@ if ($_POST['task'] == 'update_extended_attribute' && $fp->canEditFileProperties(
 		$fv=$f->getVersionToModify();
 		$ak->saveAttributeForm($fv);
 	}
-	$fv->populateAttributes();
 	$val = $fv->getAttributeValueObject($ak);
 	print $val->getValue('display');
 	
@@ -138,7 +137,6 @@ if ($_POST['task'] == 'clear_extended_attribute' && $fp->canEditFileProperties()
 		$fv=$f->getVersionToModify();
 		$fv->clearAttribute($ak);
 	}
-	$fv->populateAttributes();
 	$val = $fv->getAttributeValueObject($ak);
 
 	print '<div class="ccm-attribute-field-none">' . t('None') . '</div>';
@@ -214,7 +212,7 @@ function printFileAttributeRow($ak, $fv, $value) {
 	
 	$html = '
 	<tr class="ccm-attribute-editable-field">
-		<td><strong><a href="javascript:void(0)">' . $ak->getAttributeKeyName() . '</a></strong></td>
+		<td><strong><a href="javascript:void(0)">' . tc('AttributeKeyName', $ak->getAttributeKeyName()) . '</a></strong></td>
 		<td width="100%" class="ccm-attribute-editable-field-central"><div class="ccm-attribute-editable-field-text">' . $text . '</div>
 		<form method="post" action="' . REL_DIR_FILES_TOOLS_REQUIRED . '/files/bulk_properties">
 			<input type="hidden" name="fakID" value="' . $ak->getAttributeKeyID() . '" />
@@ -235,7 +233,7 @@ function printFileAttributeRow($ak, $fv, $value) {
 
 	$html = '
 	<tr>
-		<td><strong>' . $ak->getAttributeKeyName() . '</strong></td>
+		<td><strong>' . tc('AttributeKeyName', $ak->getAttributeKeyName()) . '</strong></td>
 		<td width="100%" colspan="2">' . $text . '</td>
 	</tr>';	
 	}
@@ -270,11 +268,7 @@ table.ccm-grid th {width: 70px}
 </style>
 <div class="ccm-ui">
 <?php  if ($_REQUEST['uploaded']) { ?>
-	<?php  if (count($_REQUEST['fID']) == 1) { ?>
-		<div class="block-message alert-message success" style="padding-right: 14px !important"><a class="btn success btn-mini" style="float: right;" onclick="jQuery.fn.dialog.closeTop()"><?php echo t('Continue')?></a><?php echo t('1 file uploaded successfully.')?></div>
-	<?php  } else { ?>
-		<div class="block-message alert-message success" style="padding-right: 14px !important"><a class="btn success btn-mini" style="float: right;" onclick="jQuery.fn.dialog.closeTop()"><?php echo t('Continue')?></a><?php echo t('%s files uploaded successfully.', count($_REQUEST['fID']))?></div>
-	<?php  } ?>
+	<div class="block-message alert-message success" style="padding-right: 14px !important"><a class="btn success btn-mini" style="float: right;" onclick="jQuery.fn.dialog.closeTop()"><?php echo t('Continue')?></a><?php echo t2('%d file uploaded successfully.', '%d files uploaded successfully.', count($_REQUEST['fID']), count($_REQUEST['fID']))?></div>
 <?php  } ?>
 
 <ul class="tabs" id="ccm-file-manager-add-complete-tabs">
@@ -311,7 +305,7 @@ table.ccm-grid th {width: 70px}
 
 <tr>
 	<td><strong><?php echo t('Size')?></strong></td>
-	<td colspan="2"><?php echo $fv->getSize()?> (<?php echo number_format($fv->getFullSize())?> <?php echo t('bytes')?>)</td>
+	<td colspan="2"><?php echo $fv->getSize()?> (<?php echo t2(/*i18n: %s is a number */ '%s byte', '%s bytes', $fv->getFullSize(), Loader::helper('number')->format($fv->getFullSize()))?>)</td>
 </tr>
 <?php  } ?>
 

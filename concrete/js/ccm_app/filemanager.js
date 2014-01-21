@@ -124,8 +124,23 @@ ccm_alLaunchSelectorFileManager = function(selector) {
 	
 	var types = $('#' + selector + '-fm-display input.ccm-file-manager-filter');
 	if (types.length) {
+		var fields = {}, name;
 		for (i = 0; i < types.length; i++) {
-			filterStr += '&' + $(types[i]).attr('name') + '=' + $(types[i]).attr('value');		
+			name = $(types[i]).attr('name');
+			if(!(name in fields)) {
+				fields[name] = [];
+			}
+			fields[name].push($(types[i]).attr('value'));
+		}
+		for(name in fields) {
+			if(fields[name].length == 1) {
+				filterStr += "&" + name + "=" + encodeURIComponent(fields[name][0]);
+			}
+			else {
+				$.each(fields[name], function(i, value) {
+					filterStr += "&" + name + "[]=" + encodeURIComponent(value);
+				});
+			}
 		}
 	}
 	
@@ -205,7 +220,7 @@ ccm_alSetupSetsForm = function(searchInstance) {
 	$('#fsAddToSearchName').liveUpdate('ccm-file-search-add-to-sets-list', 'fileset');
 
 	// Setup the tri-state checkboxes
-	$(".ccm-file-set-add-cb a").each(function() {
+	$('.ccm-file-set-add-cb a').each(function() {
 		var cb = $(this);
 		var startingState = cb.attr("ccm-tri-state-startup");
 		$(this).click(function() {
@@ -228,7 +243,7 @@ ccm_alSetupSetsForm = function(searchInstance) {
 			}
 			
 			$(this).attr('ccm-tri-state-selected', toSetState);
-			$(this).find('input').val(toSetState);
+			$(this).parent().find('input').val(toSetState);
 			$(this).find('img').attr('src', CCM_IMAGE_PATH + '/checkbox_state_' + toSetState + '.png');
 		});
 	});

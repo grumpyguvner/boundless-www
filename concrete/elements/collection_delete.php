@@ -4,6 +4,7 @@
 $sh = Loader::helper('concrete/dashboard/sitemap');
 $numChildren = $c->getNumChildren();
 $u = new User();
+$securityHelper = Loader::helper('security');
 ?>
 
 <script type="text/javascript">
@@ -24,7 +25,7 @@ $(function() {
 				} else {
 		 			ccmAlert.hud(ccmi18n_sitemap.deletePageSuccessMsg, 2000, 'delete_small', ccmi18n_sitemap.deletePage);
 					<?php  if ($_REQUEST['display_mode'] == 'explore') { ?>
-						ccmSitemapExploreNode('<?php echo $_REQUEST['instance_id']?>', 'explore', '<?php echo $_REQUEST['select_mode']?>', resp.cParentID);
+						ccmSitemapExploreNode('<?php echo $_REQUEST['instance_id']?>', 'explore', '<?php echo $_REQUEST['select_mode']?>', r.cParentID);
 					<?php  } else { ?>
 						deleteBranchFade(r.cID);
 					<?php  } ?>
@@ -45,19 +46,24 @@ $(function() {
 		<div class="dialog-buttons"><input type="button" class="btn" value="<?php echo t('Cancel')?>" onclick="jQuery.fn.dialog.closeTop()" /></div>
 		
 	<?php  } else { 
+
+		$request_rel = $securityHelper->sanitizeString($_REQUEST['rel']);
 		?>
 		
 		<div class="ccm-buttons">
 
 		<form method="post" id="ccmDeletePageForm" action="<?php echo $c->getCollectionAction()?>">	
-			<input type="hidden" name="rel" value="<?php echo $_REQUEST['rel']?>" />
+			<input type="hidden" name="rel" value="<?php  echo h($request_rel); ?>" />
 
 			<div class="dialog-buttons"><input type="button" class="btn" value="<?php echo t('Cancel')?>" onclick="jQuery.fn.dialog.closeTop()" />
 			<a href="javascript:void(0)" onclick="$('#ccmDeletePageForm').submit()" class="ccm-button-right btn error"><span><?php echo t('Delete')?></span></a>
 			</div>
-		<h3><?php echo t('Are you sure you wish to delete this page?')?></h3>
+		<?php  if($c->isSystemPage()) { ?>
+			<div class="alert alert-error"><?php  echo t('Warning! This is a system page. Deleting it could potentially break your site. Please proceed with caution.') ?></div>
+		<?php  } ?>
+		<h4><?php echo t('Are you sure you wish to delete this page?')?></h4>
 		<?php  if ($u->isSuperUser() && $numChildren > 0) { ?>
-			<h4><?php echo t('This will remove %s child page(s).', $numChildren)?></h4>
+			<h5><?php echo t('This will remove %s child page(s).', $numChildren)?></h5>
 		<?php  } ?>
 		
 		<?php  if (ENABLE_TRASH_CAN) { ?>
@@ -69,11 +75,18 @@ $(function() {
 			<input type="hidden" name="cID" value="<?php echo $c->getCollectionID()?>">
 			<input type="hidden" name="ctask" value="delete">
 			<input type="hidden" name="processCollection" value="1" />
-			<input type="hidden" name="display_mode" value="<?php echo $_REQUEST['display_mode']?>" />
-			<input type="hidden" name="instance_id" value="<?php echo $_REQUEST['instance_id']?>" />
-			<input type="hidden" name="select_mode" value="<?php echo $_REQUEST['select_mode']?>" />
+
+			<?php  
+			$display_mode = $securityHelper->sanitizeString($_REQUEST['display_mode']);
+			$instance_id = $securityHelper->sanitizeInt($_REQUEST['instance_id']);
+			$select_mode = $securityHelper->sanitizeString($_REQUEST['select_mode']);
+			?>			
+			<input type="hidden" name="display_mode" value="<?php  echo h($display_mode); ?>" />
+			<input type="hidden" name="instance_id" value="<?php  echo h($instance_id); ?>" />
+			<input type="hidden" name="select_mode" value="<?php  echo h($select_mode); ?>" />
 		</form>
 		</div>
 		
 	<?php  }
 ?>
+</div>

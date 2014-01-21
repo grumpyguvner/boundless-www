@@ -31,6 +31,7 @@ foreach($presets as $csp) {
 }
 
 $presetsArray[0] = t('** Custom (No Preset)');
+ksort($presetsArray);
 
 if (!isset($_REQUEST['csrID'])) {
 	$cspID = $style->getCustomStylePresetID();
@@ -90,16 +91,18 @@ if ($_REQUEST['subtask'] == 'delete_custom_style_preset') {
 		<div id="cspFooterPreset" style="display: none">
 			<div class="ccm-note-important">
 				<h2><?php echo t('You are changing a preset')?></h2>
-				<div><?php echo $form->radio('cspPresetAction', 'update_existing_preset', true)?> <?php echo t('Update "%s" preset everywhere it is used', $cspx->getCustomStylePresetName())?></div>
-				<div><?php echo $form->radio('cspPresetAction', 'save_as_custom_style')?> <?php echo t('Use this style here, and leave "%s" unchanged', $cspx->getCustomStylePresetName())?></div>
-				<div><?php echo $form->radio('cspPresetAction', 'create_new_preset')?> <?php echo t('Save this style as a new preset')?><br/><span style="margin-left: 20px"><?php echo $form->text('cspName', array('style' => 'width:  127px', 'disabled' => true))?></span></div>
+				<label class="radio"><?php echo $form->radio('cspPresetAction', 'update_existing_preset', true)?> <?php echo t('Update "%s" preset everywhere it is used', $cspx->getCustomStylePresetName())?></label>
+				<label class="radio"><?php echo $form->radio('cspPresetAction', 'save_as_custom_style')?> <?php echo t('Use this style here, and leave "%s" unchanged', $cspx->getCustomStylePresetName())?></label>
+				<label class="radio"><?php echo $form->radio('cspPresetAction', 'create_new_preset')?> <?php echo t('Save this style as a new preset')?><br/><span style="margin-left: 20px"><?php echo $form->text('cspName', array('style' => 'width:  127px', 'disabled' => true))?></span></label>
 			</div>
 		</div>
 	<?php  } ?>
 	
 	<div id="cspFooterNoPreset" >
-		<?php echo $form->checkbox('cspPresetAction', 'create_new_preset')?>
-		<?php echo t('Save this style as a new preset.')?>
+		<label for="cspPresetAction" class="checkbox inline">
+			<?php echo $form->checkbox('cspPresetAction', 'create_new_preset')?>
+			<?php echo t('Save this style as a new preset.')?>
+		</label>
 		<span style="margin-left: 10px">
 			<?php echo $form->text('cspName', array('style' => 'width:  140px', 'disabled' => true))?>
 		</span>
@@ -107,15 +110,16 @@ if ($_REQUEST['subtask'] == 'delete_custom_style_preset') {
 	
 	<br/>
 	
-	<div class="dialog-buttons">
-		<a href="#" class="ccm-button-left cancel btn" onclick="jQuery.fn.dialog.closeTop()"><?php echo t('Cancel')?></a>
-	
-		<a href="javascript:void(0)" onclick="$('#ccmCustomCssForm').submit()" class="btn primary ccm-button-right accept"><span><?php echo t('Save')?></span></a>
-		<?php  if ($cspID < 1) { ?>
-			<a onclick="return ccmCustomStyle.resetAll();" id="ccm-reset-style-button" class="btn ccm-button-right accept" style="margin-right:8px; "><span><?php echo t('Reset Styles')?></span></a>
-		<?php  } ?>
-	</div>
-	
+	<?php  if (!$_REQUEST['refresh']) { ?>
+		<div class="dialog-buttons">
+			<a href="#" class="ccm-button-left cancel btn" onclick="jQuery.fn.dialog.closeTop(); return false"><?php echo t('Cancel')?></a>
+			<a href="javascript:void(0)" onclick="$('#ccmCustomCssForm').submit()" class="btn primary ccm-button-right accept"><span><?php echo t('Save')?></span></a>
+			<?php  if ($cspID < 1) { ?>
+				<a onclick="return ccmCustomStyle.resetAll();" id="ccm-reset-style-button" class="btn ccm-button-right accept" style="margin-right:8px; "><span><?php echo t('Reset Styles')?></span></a>
+			<?php  } ?>
+		</div>
+	<?php  } ?>
+
 	<div class="ccm-spacer"></div> 
 	
 	<div class="ccm-note" style="margin-top:16px;">

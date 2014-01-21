@@ -28,8 +28,8 @@ class Concrete5_Library_Environment {
 	public static function get() {
 		static $env;
 		if (!isset($env)) {
-			if (ENABLE_OVERRIDE_CACHE) { 
-				$r = Config::get('ENVIRONMENT_CACHE');
+			if (file_exists(DIR_FILES_CACHE . '/' . FILENAME_ENVIRONMENT_CACHE)) { 
+				$r = @file_get_contents(DIR_FILES_CACHE . '/' . FILENAME_ENVIRONMENT_CACHE);
 				if ($r) {
 					$en = @unserialize($r);
 					if ($en instanceof Environment) {
@@ -44,8 +44,16 @@ class Concrete5_Library_Environment {
 		return $env;
 	}
 	
+	public static function saveCachedEnvironmentObject() {
+		if (!file_exists(DIR_FILES_CACHE . '/' . FILENAME_ENVIRONMENT_CACHE)) {
+			$env = new Environment();
+			$env->getOverrides();
+			@file_put_contents(DIR_FILES_CACHE . '/' . FILENAME_ENVIRONMENT_CACHE, serialize($env));
+		}
+	}
+
 	public function clearOverrideCache() {
-		Config::clear("ENVIRONMENT_CACHE");
+		@unlink(DIR_FILES_CACHE . '/' . FILENAME_ENVIRONMENT_CACHE);
 		$this->overridesScanned = false;
 	}
 
@@ -83,9 +91,6 @@ class Concrete5_Library_Environment {
 		}
 
 		$this->overridesScanned = true;
-		if (ENABLE_OVERRIDE_CACHE && !$this->autoLoaded) {
-			Config::save('ENVIRONMENT_CACHE', serialize($this));
-		}		
 	}
 	
 	public function getDirectoryContents($dir, $ignoreFilesArray = array(), $recursive = false) {
@@ -115,16 +120,16 @@ class Concrete5_Library_Environment {
 	
 	}
 	
-	
-	public function overrideCoreByPackage($segment, $pkg) {
-		$pkgHandle = $pkg->getPackageHandle();
+	public function overrideCoreByPackage($segment, $pkgOrHandle) {
+		$pkgHandle = is_object($pkgOrHandle) ? $pkgOrHandle->getPackageHandle() : $pkgOrHandle;
 		$this->coreOverridesByPackage[$segment] = $pkgHandle;	
 	}
 	
 	public function getRecord($segment, $pkgHandle = false) {
-		
 		if(is_object($pkgHandle)) {
 			$pkgHandle = $pkgHandle->getPackageHandle();
+		} else {
+			$pkgHandle = (string)$pkgHandle;
 		}
 		
 		if (!$this->overridesScanned) {
@@ -168,6 +173,32 @@ class Concrete5_Library_Environment {
 		$obj->override = false;
 		$this->cachedOverrides[$segment][$pkgHandle] = $obj;
 		return $obj;		
+	}
+
+	/** 
+	 * Bypasses overrides cache to get record
+	 */
+	public function getUncachedRecord($segment, $pkgHandle = false) {
+		$obj = new EnvironmentRecord();
+		if (is_object($pkgHandle)) {
+			$pkgHandle = $pkgHandle->getPackageHandle();
+		}
+		$obj->override = false;
+		if (file_exists(DIR_BASE . '/' . $segment)) {
+			$obj->file = DIR_BASE . '/' . $segment;
+			$obj->override = true;
+		} else if ($pkgHandle) {
+			$dirp1 = DIR_PACKAGES . '/' . $pkgHandle . '/' . $segment;
+			$dirp2 = DIR_PACKAGES_CORE . '/' . $pkgHandle . '/' . $segment;
+			if (file_exists($dirp2)) {
+				$obj->file = $dirp2;
+			} else if (file_exists($dirp1)) {
+				$obj->file = $dirp1;
+			}
+		} else {
+			$obj->file = DIR_BASE_CORE . '/' . $segment;
+		}
+		return $obj;
 	}
 	
 	/** 

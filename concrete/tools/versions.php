@@ -22,7 +22,7 @@
 	
 	if ($_GET['vtask'] == 'view_versions') { ?>
 		
-		<div class="ccm-ui">
+		<div class="ccm-ui" style="height: 100%">
 		
 		<?php  
 		$ih = Loader::helper('concrete/interface');
@@ -40,7 +40,7 @@
 
 		foreach($_REQUEST['cvID'] as $cvID) { ?>
 		
-		<div id="ccm-tab-content-view-version-<?php echo $cvID?>" style="display: <?php echo $display?>">
+		<div id="ccm-tab-content-view-version-<?php echo $cvID?>" style="display: <?php echo $display?>; height: 100%">
 		<iframe border="0" id="v<?php echo time()?>" frameborder="0" height="100%" width="100%" src="<?php echo BASE_URL . DIR_REL?>/<?php echo DISPATCHER_FILENAME?>?cvID=<?php echo $cvID?>&cID=<?php echo $_REQUEST['cID']?>&vtask=view_versions" />
 		</div>
 		
@@ -95,12 +95,13 @@
 						$pkr->setRequesterUserID($u->getUserID());
 						$u->unloadCollectionEdit($c);
 						$response = $pkr->trigger();
+						$cvID = Loader::helper('security')->sanitizeInt($_GET['cvID']);
 						if (!($response instanceof WorkflowProgressResponse)) {
-							header("Location: " . REL_DIR_FILES_TOOLS_REQUIRED . "/versions.php?forcereload=1&deferred=true&cID=" . $cID . "&cvID=" . $_GET['cvID']);
+							header("Location: " . REL_DIR_FILES_TOOLS_REQUIRED . "/versions.php?forcereload=1&deferred=true&cID=" . $cID . "&cvID=" . $cvID);
 							exit;
 						} else {
 							// we only get this response if we have skipped workflows and jumped straight in to an approve() step.
-							header("Location: " . REL_DIR_FILES_TOOLS_REQUIRED . "/versions.php?forcereload=1&cID=" . $cID . "&cvID=" . $_GET['cvID']);
+							header("Location: " . REL_DIR_FILES_TOOLS_REQUIRED . "/versions.php?forcereload=1&cID=" . $cID . "&cvID=" . $cvID);
 							exit;
 						}
 					}
@@ -349,7 +350,7 @@ $("button[name=vRemove]").click(function() {
 		<th style="vertical-align: middle"><?php echo t('Creator')?></th>
 		<th style="vertical-align: middle"><?php echo t('Approver')?></th>
 		<th style="vertical-align: middle"><?php echo t('Created')?></th>
-		<th style="white-space: nowrap">
+		<th style="white-space: nowrap; width: 145px;">
 	<div class="btn-group" style="float: right; white-space: nowrap">
 	<?php 
 	$ih = Loader::helper("concrete/dashboard");

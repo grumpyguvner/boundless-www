@@ -86,14 +86,14 @@ $languages = Localization::getAvailableInterfaceLanguages();
             		<th><?php echo t('Registration Data')?></th>
 	        	</tr>
 			</thead>
-            <tbody class="inputs-list">
+            <tbody>
             
 			<?php  foreach($attribs as $ak) { 
 				if (in_array($ak->getAttributeKeyID(), $assignment->getAttributesAllowedArray())) { 
 				?>
                 <tr>
                     <td class="clearfix">
-                    	<label><?php echo $ak->getAttributeKeyName()?> <?php  if ($ak->isAttributeKeyRequiredOnRegister()) { ?><span class="required">*</span><?php  } ?></label>
+                    	<label><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?> <?php  if ($ak->isAttributeKeyRequiredOnRegister()) { ?><span class="required">*</span><?php  } ?></label>
                         <?php  $ak->render('form', $caValue, false)?>
                     </td>
                 </tr>

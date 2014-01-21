@@ -20,7 +20,7 @@ if (!$searchDialog) {
 Loader::model('attribute/categories/collection');
 $searchFieldAttributes = CollectionAttributeKey::getSearchableList();
 foreach($searchFieldAttributes as $ak) {
-	$searchFields[$ak->getAttributeKeyID()] = $ak->getAttributeKeyDisplayHandle();
+	$searchFields[$ak->getAttributeKeyID()] = tc('AttributeKeyName', $ak->getAttributeKeyName());
 }
 
 ?>
@@ -230,7 +230,7 @@ foreach($searchFieldAttributes as $ak) {
 						<?php  if ($req == 'version_status') { ?>
 							<span class="ccm-search-option"  search-field="version_status">
 							<ul class="inputs-list">
-							<li><label><?php echo $form->radio('_cvIsApproved', 0, $searchRequest['cvIsApproved'])?> <span><?php echo t('Unapproved')?></label></li>
+							<li><label><?php echo $form->radio('_cvIsApproved', 0, $searchRequest['cvIsApproved'])?> <span><?php echo t('Unapproved')?></span></label></li>
 							<li><label><?php echo $form->radio('_cvIsApproved', 1, $searchRequest['cvIsApproved'])?> <span><?php echo t('Approved')?></span></label></li>
 							</ul>
 							</span>

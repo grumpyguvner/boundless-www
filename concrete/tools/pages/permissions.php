@@ -125,7 +125,7 @@ foreach($permissions as $pk) {
 	$pk->setPermissionObject($c);
 	?>
 	<tr>
-	<td class="ccm-permission-grid-name" id="ccm-permission-grid-name-<?php echo $pk->getPermissionKeyID()?>"><strong><?php  if ($editPermissions) { ?><a dialog-title="<?php echo $pk->getPermissionKeyName()?>" data-pkID="<?php echo $pk->getPermissionKeyID()?>" data-paID="<?php echo $pk->getPermissionAccessID()?>" onclick="ccm_permissionLaunchDialog(this)" href="javascript:void(0)"><?php  } ?><?php echo $pk->getPermissionKeyName()?><?php  if ($editPermissions) { ?></a><?php  } ?></td>
+	<td class="ccm-permission-grid-name" id="ccm-permission-grid-name-<?php echo $pk->getPermissionKeyID()?>"><strong><?php  if ($editPermissions) { ?><a dialog-title="<?php echo tc('PermissionKeyName', $pk->getPermissionKeyName())?>" data-pkID="<?php echo $pk->getPermissionKeyID()?>" data-paID="<?php echo $pk->getPermissionAccessID()?>" onclick="ccm_permissionLaunchDialog(this)" href="javascript:void(0)"><?php  } ?><?php echo tc('PermissionKeyName', $pk->getPermissionKeyName())?><?php  if ($editPermissions) { ?></a><?php  } ?></strong></td>
 	<td id="ccm-permission-grid-cell-<?php echo $pk->getPermissionKeyID()?>" <?php  if ($editPermissions) { ?>class="ccm-permission-grid-cell"<?php  } ?>><?php echo Loader::element('permission/labels', array('pk' => $pk))?></td>
 </tr>
 <?php  } ?>
@@ -162,13 +162,12 @@ ccm_permissionLaunchDialog = function(link) {
 	<div id="ccm-page-permissions-confirm-dialog" style="display: none">
 	<?php echo t('Changing this setting will affect this page immediately. Are you sure?')?>
 	<div id="dialog-buttons-start">
-		<input type="button" class="btn" value="Cancel" onclick="jQuery.fn.dialog.closeTop()" />
-		<input type="button" class="btn error ccm-button-right" value="Ok" onclick="ccm_pagePermissionsConfirmInheritanceChange()" />
+		<input type="button" class="btn" value="<?php echo t('Cancel')?>" onclick="jQuery.fn.dialog.closeTop()" />
+		<input type="button" class="btn error ccm-button-right" value="<?php echo t('Ok')?>" onclick="ccm_pagePermissionsConfirmInheritanceChange()" />
 	</div>
 	</div>
 	
 	
-	</form>
 	<?php  $pk->setPermissionObject($pages[0]); ?>
 	<?php  $pk->setMultiplePageArray($pages); ?>
 

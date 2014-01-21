@@ -32,7 +32,7 @@ if (count($options) == 0) {
 	echo t("None");
 } else {
 	foreach($options as $opt) { ?>		
-        <div class="survey-block-option" id="option<?php echo $opt->getOptionID()?>"><a href="#" onclick="removeOption(<?php echo $opt->getOptionID()?>)"><img src="<?php echo ASSETS_URL_IMAGES?>/icons/delete_small.png" /></a> <?php echo $opt->getOptionName()?>
+        <div class="survey-block-option" id="option<?php echo $opt->getOptionID()?>"><a href="#" onclick="removeOption(<?php echo $opt->getOptionID()?>); return false"><img src="<?php echo ASSETS_URL_IMAGES?>/icons/delete_small.png" /></a> <?php echo $opt->getOptionName()?>
         <input type="hidden" name="survivingOptionNames[]" value="<?php echo htmlspecialchars($opt->getOptionName())?>" />
         </div>		
 	<?php  }

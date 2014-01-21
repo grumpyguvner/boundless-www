@@ -65,7 +65,7 @@ if ($_POST['task'] == 'update_extended_attribute' && $fp->canEditFileProperties(
 	$ak->saveAttributeForm($fv);
 	
 	$val = $fv->getAttributeValueObject($ak);
-	print $val->getValue('display');
+	print $val->getValue('displaySanitized');
 	exit;
 }
 
@@ -126,7 +126,7 @@ function printFileAttributeRow($ak, $fv) {
 	$vo = $fv->getAttributeValueObject($ak);
 	$value = '';
 	if (is_object($vo)) {
-		$value = $vo->getValue('display');
+		$value = $vo->getValue('displaySanitized');
 	}
 	
 	if ($value == '') {
@@ -139,7 +139,7 @@ function printFileAttributeRow($ak, $fv) {
 	
 	$html = '
 	<tr class="ccm-attribute-editable-field">
-		<td><strong><a href="javascript:void(0)">' . $ak->getAttributeKeyName() . '</a></strong></td>
+		<td><strong><a href="javascript:void(0)">' . tc('AttributeKeyName', $ak->getAttributeKeyName()) . '</a></strong></td>
 		<td width="100%" class="ccm-attribute-editable-field-central"><div class="ccm-attribute-editable-field-text">' . $text . '</div>
 		<form method="post" action="' . REL_DIR_FILES_TOOLS_REQUIRED . '/files/properties">
 		<input type="hidden" name="fakID" value="' . $ak->getAttributeKeyID() . '" />
@@ -160,12 +160,14 @@ function printFileAttributeRow($ak, $fv) {
 
 	$html = '
 	<tr>
-		<td><strong>' . $ak->getAttributeKeyName() . '</strong></td>
+		<td><strong>' . tc('AttributeKeyName', $ak->getAttributeKeyName()) . '</strong></td>
 		<td width="100%" colspan="2">' . $text . '</td>
 	</tr>';	
 	}
 	print $html;
 }
+
+$dateHelper = Loader::helper('date');
 
 if (!isset($_REQUEST['reload'])) { ?>
 	<div id="ccm-file-properties-wrapper">
@@ -209,7 +211,7 @@ if (!$previewMode && $fp->canEditFileContents()) {
 <h4><?php echo t('Basic Properties')?></h4>
 <table border="0" cellspacing="0" cellpadding="0" class="ccm-grid">
 <tr>
-	<td><strong><?php echo t('ID')?></strong></strong></td>
+	<td><strong><?php echo t('ID')?></strong></td>
 	<td width="100%" colspan="2"><?php echo $fv->getFileID()?> <span style="color: #afafaf">(<?php echo t('Version')?> <?php echo $fv->getFileVersionID()?>)</span></td>
 </tr>
 <tr>
@@ -244,11 +246,11 @@ if (is_object($oc)) {
 </tr>
 <tr>
 	<td><strong><?php echo t('Size')?></strong></td>
-	<td colspan="2"><?php echo $fv->getSize()?> (<?php echo number_format($fv->getFullSize())?> <?php echo t('bytes')?>)</td>
+	<td colspan="2"><?php echo $fv->getSize()?> (<?php echo t2(/*i18n: %s is a number */ '%s byte', '%s bytes', $fv->getFullSize(), Loader::helper('number')->format($fv->getFullSize()))?>)</td>
 </tr>
 <tr>
 	<td><strong><?php echo t('Date Added')?></strong></td>
-	<td colspan="2"><?php echo t('Added by <strong>%s</strong> on %s', $fv->getAuthorName(), date(DATE_APP_FILE_PROPERTIES, strtotime($f->getDateAdded())))?></td>
+	<td colspan="2"><?php echo t('Added by <strong>%s</strong> on %s', $fv->getAuthorName(), $dateHelper->date(DATE_APP_FILE_PROPERTIES, strtotime($f->getDateAdded())))?></td>
 </tr>
 <?php 
 Loader::model("file_storage_location");
@@ -387,7 +389,7 @@ foreach($attribs as $at) {
 					?>
 					</td>
 				<td><?php echo $fvv->getAuthorName()?></td>
-				<td><?php echo date(DATE_APP_FILE_VERSIONS, strtotime($fvv->getDateAdded()))?></td>
+				<td><?php echo $dateHelper->date(DATE_APP_FILE_VERSIONS, strtotime($fvv->getDateAdded()))?></td>
 				<?php  if ($fp->canEditFileContents()) { ?>
 					<?php  if ($fvv->getFileVersionID() == $fv->getFileVersionID()) { ?>
 						<td>&nbsp;</td>
@@ -441,7 +443,7 @@ foreach($attribs as $at) {
 				} 
 				?>
 			</td>
-			<td><?php echo date(DATE_APP_FILE_DOWNLOAD, strtotime($download['timestamp']))?></td>
+			<td><?php echo $dateHelper->date(DATE_APP_FILE_DOWNLOAD, strtotime($download['timestamp']))?></td>
 			<td><?php echo intval($download['fvID'])?></td>
 		</tr>
 		<?php  } ?>

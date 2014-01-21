@@ -71,7 +71,7 @@ $dt = Loader::helper('form/date_time');
 <div id="ccm-permissions-access-entity-dates" class="form-horizontal">
 
 <div class="control-group">
-<?php echo $form->label('pdStartDate_activate', t('From'))?>
+<?php echo $form->label('pdStartDate_activate', tc('Start date', 'From'))?>
 <div class="controls">
 	<?php echo $dt->datetime('pdStartDate', $pdStartDate, true);?>
 	<label class="checkbox inline"><?php echo $form->checkbox('pdStartDateAllDayActivate', 1, $pdStartDateAllDay)?> <?php echo t("All Day")?></label>
@@ -79,7 +79,7 @@ $dt = Loader::helper('form/date_time');
 </div>
 
 <div class="control-group">
-<?php echo $form->label('pdEndDate_activate', t('To'))?>
+<?php echo $form->label('pdEndDate_activate', tc('End date', 'To'))?>
 <div class="controls">
 	<?php echo $dt->datetime('pdEndDate', $pdEndDate, true);?>
 	<label class="checkbox inline"><?php echo $form->checkbox('pdEndDateAllDayActivate', 1, $pdEndDateAllDay)?> <?php echo t("All Day")?></label>
@@ -197,9 +197,16 @@ foreach($list['format']['wide'] as $key => $value) { ?>
 
 </div>
 
+</div>
+</div>
+
 <script type="text/javascript">
 ccm_accessEntityCalculateRepeatOptions = function() {
 	// get the difference between start date and end date
+	if (!$("#pdStartDate_activate").is(':checked')) {
+		return false;
+	}
+       
 	var sdf = ($("#pdStartDate_dt").datepicker('option', 'dateFormat'));
 	var sdfr = $.datepicker.parseDate(sdf, $("#pdStartDate_dt").val());
 	var edf = ($("#pdEndDate_dt").datepicker('option', 'dateFormat'));

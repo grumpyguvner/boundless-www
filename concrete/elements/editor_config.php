@@ -31,6 +31,8 @@ $(function() {
 		mode : "textareas",
 		width: "<?php echo $textEditorWidth?>", 
 		height: "<?php echo $textEditorHeight?>px", 	
+		browser_spellcheck: true,
+		gecko_spellcheck: true,
 		inlinepopups_skin : "concreteMCE",
 		entity_encoding: 'raw',
 		theme_concrete_buttons2_add : "spellchecker",
@@ -84,7 +86,7 @@ $(function() {
 			editor_selector : "<?php echo $editor_selector?>",
 			spellchecker_languages : "+English=en",
 			theme : "simple",
-			plugins: "paste,inlinepopups,spellchecker,safari,advlink",
+			plugins: "paste,inlinepopups,spellchecker,safari,advlink"
 		<?php  }else{ //simple ?>
 			theme : "concrete", 
 			plugins: "paste,inlinepopups,spellchecker,safari,advlink,advimage,advhr",

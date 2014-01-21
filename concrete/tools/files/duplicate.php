@@ -6,7 +6,7 @@ $js = Loader::helper('json');
 $form = Loader::helper('form');
 $fp = FilePermissions::getGlobal();
 if (!$fp->canAccessFileManager()) {
-	die(t("Access Denied."));
+	die(t("Unable to access the file manager."));
 }
 
 if ($_POST['task'] == 'duplicate_multiple_files') {
@@ -96,7 +96,7 @@ if (!is_array($_REQUEST['fID'])) {
 				
 				<tr>
 					<td><?php echo $fv->getType()?></td>
-					<td class="ccm-file-list-filename" width="100%"><div style="width: 150px; word-wrap: break-word"><?php echo $fv->getTitle()?></td>
+					<td class="ccm-file-list-filename" width="100%"><div style="width: 150px; word-wrap: break-word"><?php echo $fv->getTitle()?></div></td>
 					<td><?php echo date(DATE_APP_DASHBOARD_SEARCH_RESULTS_FILES, strtotime($f->getDateAdded()))?></td>
 					<td><?php echo $fv->getSize()?></td>
 					<td><?php echo $fv->getAuthorName()?></td>

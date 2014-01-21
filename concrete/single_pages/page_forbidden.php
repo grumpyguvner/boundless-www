@@ -6,6 +6,4 @@
 <br/>
 <br/>
 
-<?php  $a = new Area("Main"); $a->display($c); ?>
-
 <a href="<?php echo DIR_REL?>/"><?php echo t('Back to Home')?></a>.

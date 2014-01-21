@@ -31,7 +31,7 @@ if (!$b->overrideAreaPermissions()) { ?>
 <?php echo Loader::element('permission/help');?>
 
 <?php  $cat = PermissionKeyCategory::getByHandle('block');?>
-<form method="post" id="ccm-permission-list-form" action="<?php echo $cat->getToolsURL("save_permission_assignments")?>&cID=<?php echo $c->getCollectionID()?>&arHandle=<?php echo $b->getAreaHandle()?>&cvID=<?php echo $c->getVersionID()?>&bID=<?php echo $b->getBlockID()?>">
+<form method="post" id="ccm-permission-list-form" action="<?php echo $cat->getToolsURL("save_permission_assignments")?>&cID=<?php echo $c->getCollectionID()?>&arHandle=<?php echo urlencode($b->getAreaHandle())?>&cvID=<?php echo $c->getVersionID()?>&bID=<?php echo $b->getBlockID()?>">
 
 <table class="ccm-permission-grid">
 
@@ -42,7 +42,7 @@ foreach($permissions as $pk) {
 
 ?>
 <tr>
-	<td class="ccm-permission-grid-name" id="ccm-permission-grid-name-<?php echo $pk->getPermissionKeyID()?>"><strong><?php  if ($enablePermissions) { ?><a dialog-title="<?php echo $pk->getPermissionKeyName()?>" data-pkID="<?php echo $pk->getPermissionKeyID()?>" data-paID="<?php echo $pk->getPermissionAccessID()?>" onclick="ccm_permissionLaunchDialog(this)" href="javascript:void(0)"><?php  } ?><?php echo $pk->getPermissionKeyName()?><?php  if ($enablePermissions) { ?></a><?php  } ?></strong></td>
+	<td class="ccm-permission-grid-name" id="ccm-permission-grid-name-<?php echo $pk->getPermissionKeyID()?>"><strong><?php  if ($enablePermissions) { ?><a dialog-title="<?php echo tc('PermissionKeyName', $pk->getPermissionKeyName())?>" data-pkID="<?php echo $pk->getPermissionKeyID()?>" data-paID="<?php echo $pk->getPermissionAccessID()?>" onclick="ccm_permissionLaunchDialog(this)" href="javascript:void(0)"><?php  } ?><?php echo tc('PermissionKeyName', $pk->getPermissionKeyName())?><?php  if ($enablePermissions) { ?></a><?php  } ?></strong></td>
 	<td id="ccm-permission-grid-cell-<?php echo $pk->getPermissionKeyID()?>" <?php  if ($enablePermissions) { ?>class="ccm-permission-grid-cell"<?php  } ?>><?php echo Loader::element('permission/labels', array('pk' => $pk))?></td>
 </tr>
 <?php  } ?>
@@ -72,7 +72,7 @@ foreach($permissions as $pk) {
 ccm_permissionLaunchDialog = function(link) {
 	jQuery.fn.dialog.open({
 		title: $(link).attr('dialog-title'),
-		href: '<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/edit_block_popup?bID=<?php echo $b->getBlockID()?>&arHandle=<?php echo $b->getAreaHandle()?>&cvID=<?php echo $c->getVersionID()?>&bID=<?php echo $b->getBlockID()?>&cID=<?php echo $c->getCollectionID()?>&btask=set_advanced_permissions&pkID=' + $(link).attr('data-pkID') + '&paID=' + $(link).attr('data-paID'),
+		href: '<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/edit_block_popup?bID=<?php echo $b->getBlockID()?>&arHandle=<?php echo urlencode($b->getAreaHandle())?>&cvID=<?php echo $c->getVersionID()?>&bID=<?php echo $b->getBlockID()?>&cID=<?php echo $c->getCollectionID()?>&btask=set_advanced_permissions&pkID=' + $(link).attr('data-pkID') + '&paID=' + $(link).attr('data-paID'),
 		modal: false,
 		width: 500,
 		height: 380
@@ -86,6 +86,7 @@ $(function() {
 		},
 		
 		success: function(r) {
+			ccm_mainNavDisableDirectExit();
 			jQuery.fn.dialog.hideLoader();
 			jQuery.fn.dialog.closeTop();
 		}		
@@ -95,6 +96,7 @@ $(function() {
 ccm_revertToAreaPermissions = function() {
 	jQuery.fn.dialog.showLoader();
 	$.get('<?php echo $pk->getPermissionAssignmentObject()->getPermissionKeyToolsURL("revert_to_area_permissions")?>&bID=<?php echo $b->getBlockID()?>&cvID=<?php echo $c->getVersionID()?>&arHandle=<?php echo urlencode($b->getAreaHandle())?>&cID=<?php echo $c->getCollectionID()?>', function() { 
+		ccm_mainNavDisableDirectExit();
 		ccm_refreshBlockPermissions();
 	});
 }
@@ -102,6 +104,7 @@ ccm_revertToAreaPermissions = function() {
 ccm_setBlockPermissionsToOverride = function() {
 	jQuery.fn.dialog.showLoader();
 	$.get('<?php echo $pk->getPermissionAssignmentObject()->getPermissionKeyToolsURL("override_area_permissions")?>&bID=<?php echo $b->getBlockID()?>&cvID=<?php echo $c->getVersionID()?>&arHandle=<?php echo urlencode($b->getAreaHandle())?>&cID=<?php echo $c->getCollectionID()?>', function() { 
+		ccm_mainNavDisableDirectExit();
 		ccm_refreshBlockPermissions();
 	});
 }

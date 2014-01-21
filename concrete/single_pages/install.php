@@ -324,9 +324,9 @@ $(function() {
 <table class="table table-striped">
 <tbody>
 <tr>
-	<td><?php  if ($phpVtest) { ?><img src="<?php echo ASSETS_URL_IMAGES?>/icons/success.png" /><?php  } else { ?><img src="<?php echo ASSETS_URL_IMAGES?>/icons/warning.png" /><?php  } ?></td>
-	<td width="100%"><?php echo t('PHP 5.2')?></td>
-	<td><?php  if (!$phpVtest) { ?><img src="<?php echo ASSETS_URL_IMAGES?>/icons/tooltip.png" class="launch-tooltip" title="<?php echo t('While concrete5 will mostly run on PHP 5.1, 5.2 is strongly encouraged and some functions will not work properly without it.')?>" /><?php  } ?></td>
+	<td class="ccm-test-phpversion"><?php  if ($phpVtest) { ?><img src="<?php echo ASSETS_URL_IMAGES?>/icons/success.png" /><?php  } else { ?><img src="<?php echo ASSETS_URL_IMAGES?>/icons/error.png" /><?php  } ?></td>
+	<td width="100%"><?php echo t(/*i18n: %s is the php version*/'PHP %s', $phpVmin)?></td>
+	<td><?php  if (!$phpVtest) { ?><img src="<?php echo ASSETS_URL_IMAGES?>/icons/tooltip.png" class="launch-tooltip" title="<?php echo t('concrete5 requires at least PHP %s', $phpVmin)?>" /><?php  } ?></td>
 </tr>
 <tr>
 	<td class="ccm-test-js"><img id="ccm-test-js-success" src="<?php echo ASSETS_URL_IMAGES?>/icons/success.png" style="display: none" />

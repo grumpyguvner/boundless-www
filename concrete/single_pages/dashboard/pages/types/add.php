@@ -126,8 +126,8 @@ $pageTypeIconsFS = FileSet::getByName("Page Type Icons");
                     
                         <td width="33%">
                             <label class="">
-                                <input type="checkbox" name="akID[]" value="<?php echo $ak->getAttributeKeyID()?>" />
-                                <span><?php echo $ak->getAttributeKeyName()?></span>
+                                <input type="checkbox" name="akID[]" value="<?php echo $ak->getAttributeKeyID()?>" <?php echo  (isset($_POST['akID']) && is_array($_POST['akID']) && in_array($ak->getAttributeKeyID(), $_POST['akID'])) ? 'checked' : ''; ?> />
+                                <span><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></span>
                             </label>
                         </td>
                     

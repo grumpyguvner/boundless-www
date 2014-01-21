@@ -13,9 +13,11 @@ $u = new User();
 Loader::model('file_set');
 $pageTypeIconsFS = FileSet::getByName("Page Type Icons");
 
-if ($_GET['cID'] && $_GET['task'] == 'load_master') { 
-	$u->loadMasterCollectionEdit($_GET['cID'], 1);
-	header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $_GET['cID'] . '&mode=edit');
+$cID = Loader::helper('security')->sanitizeInt($_GET['cID']);
+
+if ($cID && $_GET['task'] == 'load_master') { 
+	$u->loadMasterCollectionEdit($cID, 1);
+	header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $cID . '&mode=edit');
 	exit;
 }
 
@@ -32,61 +34,22 @@ if ($_REQUEST['task'] == 'edit') {
 	}
 }
 
-if ($_POST['update']) {
-	$ctName = Loader::helper("text")->entities($_POST['ctName']);
-	$ctHandle = Loader::helper('text')->entities($_POST['ctHandle']);
-	$vs = Loader::helper('validation/strings');
-	
-	$error = array();
-	if (!$ctHandle) {
-		$error[] = t("Handle required.");
-	} else if (!$vs->handle($ctHandle)) {
-		$error[] = t('Handles must contain only letters, numbers or the underscore symbol.');
-	}
-	
-	if (!$ctName) {
-		$error[] = t("Name required.");
-	} else if (!$vs->alphanum($ctName, true)) {
-		$error[] = t('Page type names can only contain letters, numbers and spaces.');
-	}
-	
-	if (!$valt->validate('update_page_type')) {
-		$error[] = $valt->getErrorMessage();
-	}
-	
-	$akIDArray = $_POST['akID'];
-	if (!is_array($akIDArray)) {
-		$akIDArray = array();
-	}
-	
-	if (count($error) == 0) {
-		try {
-			if (is_object($ct)) {
-				$ct->update($_POST);
-				$this->controller->redirect('/dashboard/pages/types', 'page_type_updated');
-			}		
-			exit;
-		} catch(Exception $e1) {
-			$error[] = $e1->getMessage();
-		}
-	}
-}
-
-if ($_REQUEST['updated']) {
-	$message = t('Page Type updated.');
-}
-
-
 ?>
 
 <?php 
 if ($ctEditMode) { 
 	$ct->populateAvailableAttributeKeys();
+
+        $akIDArray = $_POST['akID'];
+        if (!is_array($akIDArray)) {
+            $akIDArray = array();
+        }
+
 	?>
 	
     <?php echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(t('Edit Page Type').'<span class="label" style="position:relative;top:-3px;left:12px;">'.t('* required field').'</span>', false, false, false);?>
     
-    <form class="form-horizontal" method="post" id="update_page_type" action="<?php echo $this->url('/dashboard/pages/types/')?>">
+    <form class="form-horizontal" method="post" id="update_page_type" action="<?php echo $this->url('/dashboard/pages/types/', 'update')?>">
 	<?php echo $valt->output('update_page_type')?>
     <?php echo $form->hidden('ctID', $_REQUEST['ctID']); ?>
     <?php echo $form->hidden('task', 'edit'); ?>
@@ -191,7 +154,7 @@ if ($ctEditMode) {
                             <td width="33%">
                             <label>
                             <input type="checkbox" name="akID[]" value="<?php echo $ak->getAttributeKeyID()?>" <?php  if (($this->controller->isPost() && in_array($ak->getAttributeKeyID(), $akIDArray))) { ?> checked <?php  } else if ((!$this->controller->isPost()) && $ct->isAvailableCollectionTypeAttribute($ak->getAttributeKeyID())) { ?> checked <?php  } ?> />
-                            <span><?php echo $ak->getAttributeKeyName()?></span>
+                            <span><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></span>
                             </label>
                             </td>
                     

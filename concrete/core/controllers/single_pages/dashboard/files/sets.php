@@ -1,7 +1,6 @@
 <?php 
 defined('C5_EXECUTE') or die("Access Denied.");
 class Concrete5_Controller_Dashboard_Files_Sets extends Controller {
-
 	public $helpers = array('form','validation/token','concrete/interface'); 
 
 	public function view() {
@@ -77,12 +76,24 @@ class Concrete5_Controller_Dashboard_Files_Sets extends Controller {
 		
 		if(!$this->post('fsID')){
 			$this->set('error', array(t('Invalid ID')));
-			$this->view();			
+			$this->view();
+			return;
+		}
+		$setName = trim($this->post('file_set_name'));
+		if (!$setName) {
+			$this->set('error', array(t('Please Enter a Name')));
+			$this->view();
+			return;
+		}
+		if (preg_match('/[<>;{}?"`]/i', $setName)) {
+			$this->set('error', array(t('File Set Name cannot contain the characters: %s', Loader::helper('text')->entities('<>;{}?"`'))));
+			$this->view();
+			return;
 		}
 
 		$file_set = new FileSet();
 		$file_set->Load('fsID = ?', $this->post('fsID'));		
-		$file_set->fsName = $this->post('file_set_name');
+		$file_set->fsName = $setName;
 		$copyPermissionsFromBase = false;
 		if ($file_set->fsOverrideGlobalPermissions == 0 && $this->post('fsOverrideGlobalPermissions') == 1) {
 			// we are checking the checkbox for the first time

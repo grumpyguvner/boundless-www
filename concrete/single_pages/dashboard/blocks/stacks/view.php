@@ -25,6 +25,8 @@
 	
 	<style type="text/css">
 	div.ccm-block {border: 2px dotted #efefef; clear: both; overflow: hidden; margin: 0px 0px 4px 0px; padding: 2px}
+	div#ccm-stack-status-bar div#ccm-page-status-bar {position: static; height: auto; margin-bottom: 20px;}
+	div#ccm-stack-status-bar div#ccm-page-status-bar div.ccm-page-status-bar-buttons {display: block; margin-top: 10px; position: static;}
 	</style>
 	
 	<?php echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper($stack->getCollectionName(), false, 'span10 offset1', false)?>
@@ -43,16 +45,84 @@
 		<?php  } ?>
 
 		<?php 
-		$vo = $stack->getVersionObject();
-		if ($cp->canApprovePageVersions()) {
-			$token = '&' . Loader::helper('validation/token')->getParameter(); ?>
-			<a style="margin-right: 8px; <?php  if ($vo->isApproved()) { ?> display: none; <?php  } ?> href="javascript:void(0)" onclick="window.location.href='<?php echo DIR_REL . "/" . DISPATCHER_FILENAME . "?cID=" . $stack->getCollectionID() . "&ctask=approve-recent" . $token?>'" class="btn small ccm-main-nav-edit-option ccm-button-v2-right"><?php echo t('Approve Changes')?></a>
-		<?php 
-		}		
+		$hasPendingPageApproval = false;
+		$workflowList = PageWorkflowProgress::getList($stack);
+		foreach($workflowList as $wl) {
+			$wr = $wl->getWorkflowRequestObject(); 
+			$wrk = $wr->getWorkflowRequestPermissionKeyObject(); 
+			if ($wrk->getPermissionKeyHandle() == 'approve_page_versions') {
+				$hasPendingPageApproval = true;
+				break;
+			}
+		}
+
+		if (!$hasPendingPageApproval) { 
+			$vo = $stack->getVersionObject();
+			if ($cpc->canApprovePageVersions()) {
+				$publishTitle = t('Approve Changes');
+				$pk = PermissionKey::getByHandle('approve_page_versions');
+				$pk->setPermissionObject($stack);
+				$pa = $pk->getPermissionAccessObject();
+				if (is_object($pa) && count($pa->getWorkflows()) > 0) {
+					$publishTitle = t('Submit to Workflow');
+				}
+			
+				$token = '&' . Loader::helper('validation/token')->getParameter(); ?>
+				<a style="margin-right: 8px; <?php  if ($vo->isApproved()) { ?> display: none; <?php  } ?>" href="javascript:void(0)" onclick="window.location.href='<?php echo DIR_REL . "/" . DISPATCHER_FILENAME . "?cID=" . $stack->getCollectionID() . "&ctask=approve-recent" . $token?>'" class="btn btn-success small ccm-main-nav-edit-option ccm-button-v2-right"><?php echo $publishTitle?></a>
+			<?php 
+			}		
+		}
 		?>
 	</div>
 	<div class="ccm-pane-body ccm-pane-body-footer clearfix" id="ccm-stack-container">
-	<?php 
+		<?php 
+			if (count($workflowList) > 0) { ?>
+			<div id="ccm-stack-status-bar"></div>
+
+			<script type="text/javascript">
+			$(function() {
+
+			<?php  foreach($workflowList as $wl) { ?>
+				<?php  $wr = $wl->getWorkflowRequestObject(); 
+				$wrk = $wr->getWorkflowRequestPermissionKeyObject(); 
+				if ($wrk->getPermissionKeyHandle() == 'approve_page_versions') {
+					$hasPendingPageApproval = true;
+				}
+				?>
+				<?php  $wf = $wl->getWorkflowObject(); ?>
+				sbitem = new ccm_statusBarItem();
+				sbitem.setCSSClass('<?php echo $wr->getWorkflowRequestStyleClass()?>');
+				sbitem.setDescription('<?php echo $wf->getWorkflowProgressCurrentDescription($wl)?>');
+				sbitem.setAction('<?php echo $wl->getWorkflowProgressFormAction()?>');
+				sbitem.enableAjaxForm();
+				<?php  $actions = $wl->getWorkflowProgressActions(); ?>
+				<?php  foreach($actions as $act) { ?>
+					btn = new ccm_statusBarItemButton();
+					btn.setLabel('<?php echo $act->getWorkflowProgressActionLabel()?>');
+					btn.setCSSClass('<?php echo $act->getWorkflowProgressActionStyleClass()?>');
+					btn.setInnerButtonLeftHTML('<?php echo $act->getWorkflowProgressActionStyleInnerButtonLeftHTML()?>');
+					btn.setInnerButtonRightHTML('<?php echo $act->getWorkflowProgressActionStyleInnerButtonRightHTML()?>');
+					<?php  if ($act->getWorkflowProgressActionURL() != '') { ?>
+						btn.setURL('<?php echo $act->getWorkflowProgressActionURL()?>');
+					<?php  } else { ?>
+						btn.setAction('<?php echo $act->getWorkflowProgressActionTask()?>');
+					<?php  } ?>
+					<?php  if (count($act->getWorkflowProgressActionExtraButtonParameters()) > 0) { ?>
+						<?php  foreach($act->getWorkflowProgressActionExtraButtonParameters() as $key => $value) { ?>
+							btn.addAttribute('<?php echo $key?>', '<?php echo $value?>');
+						<?php  } ?>
+					<?php  } ?>
+					sbitem.addButton(btn);
+				<?php  } ?>
+				ccm_statusBar.addItem(sbitem);
+			<?php  } ?>
+				ccm_statusBar.activate('ccm-stack-status-bar');
+			});
+			</script>
+
+			<?php  }  
+
+
 		$a = Area::get($stack, 'Main');
 		$bv = new BlockView();
 		$bv->renderElement('block_area_header', array('a' => $a));	

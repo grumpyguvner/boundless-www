@@ -25,7 +25,7 @@ $attribs = UserAttributeKey::getList();
 	<?php echo $form->select('viewAttributesIncluded[' . $entity->getAccessEntityID() . ']', array('A' => t('All Attributes'), 'C' => t('Custom')), $assignment->getAttributesAllowedPermission())?><br/><br/>
 	<ul class="inputs-list" <?php  if ($assignment->getAttributesAllowedPermission() != 'C') { ?>style="display: none"<?php  } ?>>
 		<?php  foreach($attribs as $ak) { ?>
-			<li><label><input type="checkbox" name="akIDInclude[<?php echo $entity->getAccessEntityID()?>][]" value="<?php echo $ak->getAttributeKeyID()?>" <?php  if (in_array($ak->getAttributeKeyID(), $assignment->getAttributesAllowedArray())) { ?> checked="checked" <?php  } ?> /> <span><?php echo $ak->getAttributeKeyName()?></span></label></li>
+			<li><label><input type="checkbox" name="akIDInclude[<?php echo $entity->getAccessEntityID()?>][]" value="<?php echo $ak->getAttributeKeyID()?>" <?php  if (in_array($ak->getAttributeKeyID(), $assignment->getAttributesAllowedArray())) { ?> checked="checked" <?php  } ?> /> <span><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></span></label></li>
 		<?php  } ?>
 	</ul>
 	</div>
@@ -51,7 +51,7 @@ $attribs = UserAttributeKey::getList();
 	<?php echo $form->select('viewAttributesExcluded[' . $entity->getAccessEntityID() . ']', array('N' => t('No Attributes'), 'C' => t('Custom')), $assignment->getAttributesAllowedPermission())?><br/><br/>
 	<ul class="inputs-list" <?php  if ($assignment->getAttributesAllowedPermission() != 'C') { ?>style="display: none"<?php  } ?>>
 		<?php  foreach($attribs as $ak) { ?>
-			<li><label><input type="checkbox" name="akIDExclude[<?php echo $entity->getAccessEntityID()?>][]" value="<?php echo $ak->getAttributeKeyID()?>" <?php  if (in_array($ak->getAttributeKeyID(), $assignment->getAttributesAllowedArray())) { ?> checked="checked" <?php  } ?> /> <span><?php echo $ak->getAttributeKeyName()?></span></label></li>
+			<li><label><input type="checkbox" name="akIDExclude[<?php echo $entity->getAccessEntityID()?>][]" value="<?php echo $ak->getAttributeKeyID()?>" <?php  if (in_array($ak->getAttributeKeyID(), $assignment->getAttributesAllowedArray())) { ?> checked="checked" <?php  } ?> /> <span><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></span></label></li>
 		<?php  } ?>
 	</ul>
 	</div>

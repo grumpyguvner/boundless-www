@@ -43,8 +43,8 @@ if (!$rssObj->dateFormat) {
 	<label><?php echo t('Display')?>:</label>
 	<div class="input">
 	<ul class="inputs-list">
-		<li><label><input name="showSummary" type="radio" value="0" <?php echo (!$rssObj->showSummary)?'checked':''?>> <span><?php echo t('Only Titles')?></span></li>
-		<li><label><input name="showSummary" type="radio" value="1" <?php echo ($rssObj->showSummary)?'checked':''?>> <span><?php echo t('Titles & Summary')?></span></li>
+		<li><label><input name="showSummary" type="radio" value="0" <?php echo (!$rssObj->showSummary)?'checked':''?>> <span><?php echo t('Only Titles')?></span></label></li>
+		<li><label><input name="showSummary" type="radio" value="1" <?php echo ($rssObj->showSummary)?'checked':''?>> <span><?php echo t('Titles & Summary')?></span></label></li>
 	</ul>
 	</div>
 </div>

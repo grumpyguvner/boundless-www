@@ -32,8 +32,7 @@ function getAttributeOptionHTML($v){
 				<?php  } else { ?>
 					<input id="akSelectValueNewOption_<?php echo $akSelectValueID?>" name="akSelectValueNewOption_<?php echo $akSelectValueID?>" type="hidden" value="<?php echo $akSelectValueID?>" />
 				<?php  } ?>
-				<input id="akSelectValueField_<?php echo $akSelectValueID?>" name="akSelectValue_<?php echo $akSelectValueID?>" type="text" value="<?php echo $akSelectValue?>" size="20" 
-				  onkeypress="ccmAttributesHelper.addEnterClick(event,function(){ccmAttributesHelper.changeValue('<?php echo addslashes($akSelectValueID)?>')})" />
+				<input id="akSelectValueField_<?php  echo $akSelectValueID?>" onkeypress="ccmAttributesHelper.keydownHandler(event);" class="akSelectValueField" data-select-value-id="<?php  echo $akSelectValueID; ?>" name="akSelectValue_<?php  echo $akSelectValueID?>" type="text" value="<?php  echo $akSelectValue?>" size="20" />
 			</span>		
 		</div>	
 		<div class="ccm-spacer">&nbsp;</div>

@@ -112,7 +112,7 @@
 		 * @param int $fsID
 		 * @return FileSet
 		 */
-		public function getByID($fsID) {
+		public static function getByID($fsID) {
 			$db = Loader::db();
 			$row = $db->GetRow('select * from FileSets where fsID = ?', array($fsID));
 			if (is_array($row)) {
@@ -132,7 +132,7 @@
 		 * @param string $fsName
 		 * @return FileSet
 		 */
-		public function getByName($fsName) {
+		public static function getByName($fsName) {
 			$db = Loader::db();
 			$row = $db->GetRow('select * from FileSets where fsName = ?', array($fsName));
 			if (is_array($row) && count($row)) {
@@ -189,7 +189,12 @@
 				$file_set->fsType 	= $fs_type;
 				$file_set->uID		= $fs_uid;
 				$file_set->save();
-				return $file_set;
+
+				$db = Loader::db();
+				$fsID = $db->Insert_Id();
+				$fs = FileSet::getByID($fsID);
+				Events::fire('on_file_set_add', $fs);
+				return $fs;
 			}			
 		}
 		
@@ -203,6 +208,7 @@
 				$f_id = $f_id->getFileID();
 			}			
 			$file_set_file = FileSetFile::createAndGetFile($f_id,$this->fsID);
+			Events::fire('on_file_added_to_set', $f_id, $this->getFileSetID());
 			return $file_set_file;
 		}
 		
@@ -221,6 +227,7 @@
 			$db->Execute('DELETE FROM FileSetFiles 
 			WHERE fID = ? 
 			AND   fsID = ?', array($f_id, $this->getFileSetID()));
+			Events::fire('on_file_removed_from_set', $f_id, $this->getFileSetID());
 		}
 
 		/**
@@ -241,6 +248,47 @@
 			foreach ($this->fileSetFiles as $file) {
 				if($file->fID == $f_id){
 					return true;
+				}
+			}
+		}
+
+		/**
+		 * Returns an array of File objects from the current set
+		 * @return array
+		 */
+		public function getFiles() {
+			if (!$this->fileSetFiles) { $this->populateFiles();	}
+			$files = array();
+			foreach ($this->fileSetFiles as $file) {
+				$files[] = File::getByID($file->fID);
+			}
+			return $files;
+		}
+
+		/**
+		 * Static method to return an array of File objects by the set id
+		 * @param  int $fsID
+		 * @return array
+		 */
+		public static function getFilesBySetID($fsID) {
+			if (intval($fsID) > 0) {
+				$fileset = self::getByID($fsID);
+				if ($fileset instanceof FileSet) {
+					return $fileset->getFiles();
+				}
+			}
+		}
+
+		/**
+		 * Static method to return an array of File objects by the set name
+		 * @param  string $fsName
+		 * @return array
+		 */
+		public static function getFilesBySetName($fsName) {
+			if (!empty($fsName)) {
+				$fileset = self::getByName($fsName);
+				if ($fileset instanceof FileSet) {
+					return $fileset->getFiles();
 				}
 			}
 		}
@@ -275,6 +323,7 @@
 			$db = Loader::db();
 			if ($this->fsID > 0) { 
 				$db->Execute("update FileSets set fsOverrideGlobalPermissions = 1 where fsID = ?", array($this->fsID));
+				$this->fsOverrideGlobalPermissions = true;
 			}
 			
 			if (is_array($userOrGroup)) { 
@@ -288,11 +337,13 @@
 			}
 			
 			foreach($permissions as $pkHandle) { 
-				$pk = PagePermissionKey::getByHandle($pkHandle);
+				$pk = PermissionKey::getByHandle($pkHandle);
 				$pk->setPermissionObject($this);
 				$pa = $pk->getPermissionAccessObject();
 				if (!is_object($pa)) {
 					$pa = PermissionAccess::create($pk);
+				} else if ($pa->isPermissionAccessInUse()) {
+					$pa = $pa->duplicate();
 				}
 				$pa->addListItem($pe, false, $accessType);
 				$pt = $pk->getPermissionAssignmentObject();

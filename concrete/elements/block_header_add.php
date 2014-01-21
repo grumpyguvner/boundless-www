@@ -39,7 +39,7 @@ $(function() {
 
 </script>
 
-<input type="hidden" name="ccm-block-pane-action" value="<?php echo $_SERVER['REQUEST_URI']?>" />
+<input type="hidden" name="ccm-block-pane-action" value="<?php echo  Loader::helper('security')->sanitizeURL($_SERVER['REQUEST_URI']); ?>" />
 
 <?php 
 $hih = Loader::helper("concrete/interface/help");

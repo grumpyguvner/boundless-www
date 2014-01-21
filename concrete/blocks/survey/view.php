@@ -27,10 +27,17 @@ if ($controller->hasVoted()) { ?>
 			$graphColors[]=array_pop($availableChartColors);
 			$totalVotes+=intval($opt->getResults());
 		}
+		foreach ($optionResults as &$value){
+			if($totalVotes) {
+				$value=round($value/$totalVotes*100,0);
+			}
+		}		
 		?>
-		
-		<strong><?php echo t("Question")?>: <?php echo $controller->getQuestion()?></strong>
-		
+
+		<div id="surveyQuestion">
+			<strong><?php echo t("Question")?>: <?php echo $controller->getQuestion()?></strong>
+		</div>
+
 		<div id="surveyResults" style=" <?php echo (!$_GET['dontGraphPoll'] && $totalVotes>0)?'float:left; width:45%':''?>">
 			<table style="width:98%">
 			<?php 	$i = 1; 
@@ -46,13 +53,13 @@ if ($controller->hasVoted()) { ?>
 					<?php  $i++; ?>
 			<?php  } ?>
 			</table>
-			<div class="note" style="margin-top:8px"><?php echo intval($totalVotes)?> <?php echo (intval($totalVotes)==1)?t('Vote'):t('Votes')?></div>
+			<div class="note" style="margin-top:8px"><?php echo t2('%d Vote', '%d Votes', intval($totalVotes), intval($totalVotes))?></div>
 		</div>
 		<?php 
 		//&chl= join('|',$optionNamesAbbrev) 
 		if(count($optionNamesAbbrev) && !$_GET['dontGraphPoll'] && $totalVotes>0){ ?>
 		<div >
-		<img border="" src="http://chart.apis.google.com/chart?cht=p&chd=t:<?php echo join(',',$optionResults)?>&chs=180x180&chco=<?php echo join(',',$graphColors)?>" alt="<?php  echo t('survey results');?>" />
+		<img border="" src="//chart.apis.google.com/chart?cht=p&chd=t:<?php echo join(',',$optionResults)?>&chs=180x180&chco=<?php echo join(',',$graphColors)?>" alt="<?php  echo t('survey results');?>" />
 		</div>
 		<?php  } ?>	
 		<div class="spacer">&nbsp;</div>	
@@ -65,8 +72,10 @@ if ($controller->hasVoted()) { ?>
 	<div class="spacer">&nbsp;</div>
 
 <?php  } else { ?>
-
-	<?php echo $controller->getQuestion()?><br/>
+	
+	<div id="surveyQuestion">
+		<?php echo $controller->getQuestion()?><br/>
+	</div>
 	
 	<?php  if(!$controller->requiresRegistration() || intval($uID) > 0) { ?>
 	<form method="post" action="<?php echo $this->action('form_save_vote', '#survey-form-'.$controller->bID)?>">

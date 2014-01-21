@@ -34,7 +34,7 @@ class Concrete5_Model_PackageList extends Object {
 		if ($pkgID < 1) {
 			return false;
 		}
-		$packageList = Cache::get('packageHandleList', false);
+		$packageList = CacheLocal::getEntry('packageHandleList', false);
 		if (is_array($packageList)) {
 			return $packageList[$pkgID];
 		}
@@ -46,18 +46,18 @@ class Concrete5_Model_PackageList extends Object {
 			$packageList[$row['pkgID']] = $row['pkgHandle'];
 		}
 		
-		Cache::set('packageHandleList', false, $packageList);
+		CacheLocal::set('packageHandleList', false, $packageList);
 		return $packageList[$pkgID];
 	}
 	
 	public static function refreshCache() {
-		Cache::delete('pkgList', 1);
-		Cache::delete('pkgList', 0);
-		Cache::delete('packageHandleList', false);
+		CacheLocal::delete('packageHandleList', false);
+		CacheLocal::delete('pkgList', 1);
+		CacheLocal::delete('pkgList', 0);
 	}
 	
 	public static function get($pkgIsInstalled = 1) {
-		$pkgList = Cache::get('pkgList', $pkgIsInstalled);
+		$pkgList = CacheLocal::getEntry('pkgList', $pkgIsInstalled);
 		if ($pkgList != false) {
 			return $pkgList;
 		}
@@ -71,7 +71,7 @@ class Concrete5_Model_PackageList extends Object {
 			$list->add($pkg);
 		}
 		
-		Cache::set('pkgList', $pkgIsInstalled, $list);
+		CacheLocal::set('pkgList', $pkgIsInstalled, $list);
 
 		return $list;
 	}
@@ -290,7 +290,7 @@ class Concrete5_Model_Package extends Object {
 		$txt = Loader::helper('text');
 		Loader::model('single_page');
 		if ($item instanceof BlockType) {
-			return $item->getBlockTypeName();
+			return t($item->getBlockTypeName());
 		} else if ($item instanceof PageTheme) {
 			return $item->getThemeName();
 		} else if ($item instanceof CollectionType) {
@@ -300,16 +300,16 @@ class Concrete5_Model_Package extends Object {
 		} else if ($item instanceof SinglePage) {
 			return $item->getCollectionPath();
 		} else if ($item instanceof AttributeType) {
-			return $item->getAttributeTypeName();
+			return tc('AttributeTypeName', $item->getAttributeTypeName());
 		} else if ($item instanceof PermissionAccessEntityType) {
-			return $item->getAccessEntityTypeName();
+			return tc('PermissionAccessEntityTypeName', $item->getAccessEntityTypeName());
 		} else if ($item instanceof PermissionKeyCategory) {
 			return $txt->unhandle($item->getPermissionKeyCategoryHandle());
 		} else if ($item instanceof AttributeKeyCategory) {
 			return $txt->unhandle($item->getAttributeKeyCategoryHandle());
 		} else if ($item instanceof AttributeSet) {
 			$at = AttributeKeyCategory::getByID($item->getAttributeSetKeyCategoryID());
-			return t('%s (%s)', $item->getAttributeSetName(), $txt->unhandle($at->getAttributeKeyCategoryHandle()));
+			return t('%s (%s)', tc('AttributeSetName', $item->getAttributeSetName()), $txt->unhandle($at->getAttributeKeyCategoryHandle()));
 		} else if ($item instanceof GroupSet) {
 			return $item->getGroupSetNAme();
 		} else if (is_a($item, 'AttributeKey')) {
@@ -320,7 +320,7 @@ class Concrete5_Model_Package extends Object {
 		} else if ($item instanceof SystemAntispamLibrary) {
 			return $item->getSystemAntispamLibraryName();
 		} else if (is_a($item, 'PermissionKey')) {
-			return $item->getPermissionKeyName();			
+			return tc('PermissionKeyName', $item->getPermissionKeyName());			
 		} else if (is_a($item, 'Job')) {
 			return $item->getJobName();
 		} else if (is_a($item, 'WorkflowType')) {
@@ -393,7 +393,6 @@ class Concrete5_Model_Package extends Object {
 			}
 		}
 		$db->Execute("delete from Packages where pkgID = ?", array($this->pkgID));
-		PackageList::refreshCache();
 	}
 	
 	protected function validateClearSiteContents($options) {
@@ -502,9 +501,9 @@ class Concrete5_Model_Package extends Object {
 	public function mapError($testResults) {
 		$errorText[Package::E_PACKAGE_INSTALLED] = t("You've already installed that package.");
 		$errorText[Package::E_PACKAGE_NOT_FOUND] = t("Invalid Package.");
-		$errorText[Package::E_PACKAGE_VERSION] = t("This package requires Concrete version %s or greater.");
+		$errorText[Package::E_PACKAGE_VERSION] = t("This package requires concrete5 version %s or greater.");
 		$errorText[Package::E_PACKAGE_DOWNLOAD] = t("An error occurred while downloading the package.");
-		$errorText[Package::E_PACKAGE_SAVE] = t("Concrete was not able to save the package after download.");
+		$errorText[Package::E_PACKAGE_SAVE] = t("concrete5 was not able to save the package after download.");
 		$errorText[Package::E_PACKAGE_UNZIP] = t('An error occurred while trying to unzip the package.');
 		$errorText[Package::E_PACKAGE_INSTALL] = t('An error occurred while trying to install the package.');
 		$errorText[Package::E_PACKAGE_MIGRATE_BACKUP] = t('Unable to backup old package directory to %s', DIR_FILES_TRASH);
@@ -576,6 +575,7 @@ class Concrete5_Model_Package extends Object {
 	 * @return Package
 	 */
 	public function install() {
+		PackageList::refreshCache();
 		$db = Loader::db();
 		$dh = Loader::helper('date');
 		$v = array($this->getPackageName(), $this->getPackageDescription(), $this->getPackageVersion(), $this->getPackageHandle(), 1, $dh->getSystemDateTime());
@@ -583,10 +583,8 @@ class Concrete5_Model_Package extends Object {
 		
 		$pkg = Package::getByID($db->Insert_ID());
 		Package::installDB($pkg->getPackagePath() . '/' . FILENAME_PACKAGE_DB);
-		PackageList::refreshCache();
 		$env = Environment::get();
 		$env->clearOverrideCache();
-		
 		return $pkg;
 	}
 	
@@ -594,7 +592,6 @@ class Concrete5_Model_Package extends Object {
 		$db = Loader::db();
 		$v = array($vNum, $this->getPackageID());
 		$db->query("update Packages set pkgAvailableVersion = ? where pkgID = ?", $v);
-		PackageList::refreshCache();
 	}
 	
 	public function upgradeCoreData() {
@@ -602,7 +599,6 @@ class Concrete5_Model_Package extends Object {
 		$p1 = Loader::package($this->getPackageHandle());
 		$v = array($p1->getPackageName(), $p1->getPackageDescription(), $p1->getPackageVersion(), $this->getPackageID());
 		$db->query("update Packages set pkgName = ?, pkgDescription = ?, pkgVersion = ? where pkgID = ?", $v);
-		PackageList::refreshCache();
 	}
 	
 	public function upgrade() {

@@ -86,12 +86,12 @@ if ($_POST['task'] == 'set_location') {
 
 <?php echo $form->hidden('task', 'set_location')?>
 <?php echo $form->hidden('fID', $f->getFileID())?>
-<div><?php echo $form->radio('fslID', 0, $f->getStorageLocationID()) ?> <?php echo t('Default Location')?> (<?php echo DIR_FILES_UPLOADED?>)</div>
+<label class="radio"><?php echo $form->radio('fslID', 0, $f->getStorageLocationID()) ?> <?php echo t('Default Location')?> (<?php echo DIR_FILES_UPLOADED?>)</label>
 
 <?php 
 $fsl = FileStorageLocation::getByID(FileStorageLocation::ALTERNATE_ID);
 if (is_object($fsl)) { ?>
-	<div><?php echo $form->radio('fslID', FileStorageLocation::ALTERNATE_ID, $f->getStorageLocationID()) ?> <?php echo $fsl->getName()?> (<?php echo $fsl->getDirectory()?>)</div>
+	<label class="radio"><?php echo $form->radio('fslID', FileStorageLocation::ALTERNATE_ID, $f->getStorageLocationID()) ?> <?php echo $fsl->getName()?> (<?php echo $fsl->getDirectory()?>)</label>
 <?php  } ?>
 </form>
 

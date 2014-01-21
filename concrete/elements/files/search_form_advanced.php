@@ -19,11 +19,12 @@ if ($_REQUEST['fExtension'] != false) {
 }
 
 $html = Loader::helper('html');
+$text = Loader::helper('text');
 
 Loader::model('file_attributes');
 $searchFieldAttributes = FileAttributeKey::getSearchableList();
 foreach($searchFieldAttributes as $ak) {
-	$searchFields[$ak->getAttributeKeyID()] = $ak->getAttributeKeyDisplayHandle();
+	$searchFields[$ak->getAttributeKeyID()] = tc('AttributeKeyName', $ak->getAttributeKeyName());
 }
 
 $ext1 = FileList::getExtensionList();
@@ -80,16 +81,42 @@ foreach($t1 as $value) {
 	</div>
 
 	<form method="get" class="form-horizontal" id="ccm-<?php echo $searchInstance?>-advanced-search" action="<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/files/search_results">
-	<?php  if ($_REQUEST['fType'] != false) { ?>
-		<div class="ccm-file-manager-pre-filter"><?php echo t('Only displaying %s files.', FileType::getGenericTypeText($_REQUEST['fType']))?></div>
-	<?php  } else if ($_REQUEST['fExtension'] != false) { ?>
-		<div class="ccm-file-manager-pre-filter"><?php echo t('Only displaying files with extension .%s.', $_REQUEST['fExtension'])?></div>
+	<?php  if ($_REQUEST['fType'] != false) {
+		$showTypes = array();
+		if(is_array($_REQUEST['fType'])) {
+			foreach($_REQUEST['fType'] as $showTypeId) {
+				$showTypes[] = FileType::getGenericTypeText($showTypeId);
+			}
+		}
+		else {
+			$showTypes[] = FileType::getGenericTypeText($_REQUEST['fType']);
+		}
+		?>
+		<div class="ccm-file-manager-pre-filter"><?php echo t('Only displaying %s files.', implode(', ', $showTypes))?></div>
+	<?php  } else if ($_REQUEST['fExtension'] != false) {
+		if(is_array($_REQUEST['fExtension'])) {
+			$showExtensions = $_REQUEST['fExtension'];
+		}
+		else {
+			$showExtensions = array($_REQUEST['fExtension']);
+		}
+		?>
+		<div class="ccm-file-manager-pre-filter"><?php echo t('Only displaying files with extension .%s.', implode(', ', $showExtensions))?></div>
 	<?php  } ?>
 
 	<input type="hidden" name="submit_search" value="1" />
 	<?php 
-		print $form->hidden('fType'); 
-		print $form->hidden('fExtension'); 
+		foreach(array('fType', 'fExtension') as $filterName) {
+			$filterValues = '';
+			if(is_array($_REQUEST[$filterName])) {
+				foreach($_REQUEST[$filterName] as $filterValue) {
+					print '<input type="hidden" name="' . $filterName . '[]" value="' . $text->entities($filterValue) . '" />';
+				}
+			}
+			else {
+				print $form->hidden($filterName);
+			}
+		}
 		print $form->hidden('searchType', $searchType); 
 		print $form->hidden('ccm_order_dir', $searchRequest['ccm_order_dir']); 
 		print $form->hidden('ccm_order_by', $searchRequest['ccm_order_by']); 
@@ -161,6 +188,7 @@ foreach($t1 as $value) {
 					<?php  foreach($s1 as $s) { ?>
 						<option value="<?php echo $s->getFileSetID()?>"  <?php  if (is_array($searchRequest['fsID']) && in_array($s->getFileSetID(), $searchRequest['fsID'])) { ?> selected="selected" <?php  } ?>><?php echo wordwrap($s->getFileSetName(), '23', '&shy;', true)?></option>
 					<?php  } ?>
+					</optgroup>
 					<optgroup label="<?php echo t('Other')?>">
 						<option value="-1" <?php  if (is_array($searchRequest['fsID']) && in_array(-1, $searchRequest['fsID'])) { ?> selected="selected" <?php  } ?>><?php echo t('Files in no sets.')?></option>
 					</optgroup>

@@ -1,4 +1,3 @@
-
 <?php echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(t('System &amp; Settings'));?>
 <form>
 <?php 
@@ -38,5 +37,5 @@ foreach($categories as $cat) { ?>
 	<?php  } ?>
 
 <?php  } ?>
-
+</form>
 <?php echo Loader::helper('concrete/dashboard')->getDashboardPaneFooterWrapper();?>

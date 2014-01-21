@@ -19,7 +19,7 @@ foreach($ps->getPermissionAssignments() as $pkID => $paID) {
 	$pk->setPermissionObject($c);
 ?>
 <tr>
-	<td class="ccm-permission-grid-name"><strong><?php echo $pk->getPermissionKeyName()?></td>
+	<td class="ccm-permission-grid-name"><strong><?php echo tc('PermissionKeyName', $pk->getPermissionKeyName())?></strong></td>
 	<td>
 	<?php  $pa = PermissionAccess::getByID($paID, $pk); 
 	Loader::element('permission/labels', array('pa' => $pa, 'pk' => $pk))?>

@@ -22,6 +22,7 @@ if ($cap->canAccessComposer()) { ?>
 	<div class="ccm-pane-body">
 	<?php echo $form->hidden('ctID', $ct->getCollectionTypeID()); ?>
     
+        <h3><?php echo t("Page type").': '.$ct->getCollectionTypeName()?></h3>
         <table class="table" cellspacing="0" cellpadding="0" border="0">
             <thead>
                 <tr>
@@ -111,7 +112,7 @@ if ($cap->canAccessComposer()) { ?>
                     	<td width="33%">
                             <label>
                                 <?php echo $form->checkbox('composerAKID[]', $ak->getAttributeKeyID(), in_array($ak->getAttributeKeyID(), $selectedAttributes))?>
-                                <span><?php echo $ak->getAttributeKeyName()?></span>
+                                <span><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></span>
                             </label>
                         </td>
                     
@@ -154,7 +155,7 @@ if ($cap->canAccessComposer()) { ?>
                             ?>
                         
                         <div class="ccm-composer-content-item" id="item_akID<?php echo $ak->getAttributeKeyID()?>">
-                            <img class="ccm-composer-content-item-icon" src="<?php echo $ak->getAttributeKeyIconSRC()?>" width="16" height="16" /><?php echo $ak->getAttributeKeyName()?>
+                            <img class="ccm-composer-content-item-icon" src="<?php echo $ak->getAttributeKeyIconSRC()?>" width="16" height="16" /><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?>
                         </div>
                 
                             <?php  } else if ($ci instanceof Block) { 
@@ -166,7 +167,7 @@ if ($cap->canAccessComposer()) { ?>
                                 if ($b->getBlockName()) {
                                     print $b->getBlockName();
                                 } else {
-                                    print $b->getBlockTypeName();
+                                    print t($b->getBlockTypeName());
                                 }
                             ?>
                         </div>

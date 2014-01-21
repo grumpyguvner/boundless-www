@@ -1,11 +1,32 @@
 <?php  
 defined('C5_EXECUTE') or die("Access Denied.");
-global $c;
-global $cp;
-global $cvID;
+$c = $this->getCollectionObject();
+if (is_object($c)) {
+	$cp = new Permissions($c);
+}
+
+/** 
+ * Handle page title
+ */
 
 if (is_object($c)) {
-	$pageTitle = (!$pageTitle) ? $c->getCollectionName() : $pageTitle;
+	// We can set a title 3 ways:
+	// 1. It comes through programmatically as $pageTitle. If this is the case then we pass it through, no questions asked
+	// 2. It comes from meta title
+	// 3. It comes from getCollectionName()
+	// In the case of 3, we also pass it through page title format.
+
+	if (!isset($pageTitle) || !$pageTitle) {
+		// we aren't getting it dynamically.
+		$pageTitle = $c->getCollectionAttributeValue('meta_title');
+		if (!$pageTitle) {
+			$pageTitle = $c->getCollectionName();
+			if($c->isAdminArea()) {
+				$pageTitle = t($pageTitle);
+			}
+			$pageTitle = sprintf(PAGE_TITLE_FORMAT, SITE, $pageTitle);
+		}
+	}
 	$pageDescription = (!$pageDescription) ? $c->getCollectionDescription() : $pageDescription;
 	$cID = $c->getCollectionID(); 
 	$isEditMode = ($c->isEditMode()) ? "true" : "false";
@@ -18,18 +39,11 @@ if (is_object($c)) {
 
 <meta http-equiv="content-type" content="text/html; charset=<?php  echo APP_CHARSET?>" />
 <?php 
-$akt = $c->getCollectionAttributeValue('meta_title'); 
 $akd = $c->getCollectionAttributeValue('meta_description');
 $akk = $c->getCollectionAttributeValue('meta_keywords');
-
-if ($akt) { 
-	$pageTitle = $akt; 
-	?><title><?php  echo htmlspecialchars($akt, ENT_COMPAT, APP_CHARSET)?></title>
-<?php  } else { 
-	$pageTitle = htmlspecialchars($pageTitle, ENT_COMPAT, APP_CHARSET);
-	?><title><?php  echo sprintf(PAGE_TITLE_FORMAT, SITE, $pageTitle)?></title>
-<?php  } 
-
+?>
+<title><?php  echo htmlspecialchars($pageTitle, ENT_COMPAT, APP_CHARSET)?></title>
+<?php 
 if ($akd) { ?>
 <meta name="description" content="<?php echo htmlspecialchars($akd, ENT_COMPAT, APP_CHARSET)?>" />
 <?php  } else { ?>
@@ -41,7 +55,14 @@ if ($akk) { ?>
 if($c->getCollectionAttributeValue('exclude_search_index')) { ?>
     <meta name="robots" content="noindex" />
 <?php  } ?>
-<meta name="generator" content="concrete5 - <?php  echo APP_VERSION ?>" />
+<?php 
+if (defined('APP_VERSION_DISPLAY_IN_HEADER') && APP_VERSION_DISPLAY_IN_HEADER) {
+    echo '<meta name="generator" content="concrete5 - ' . APP_VERSION . '" />';
+}    
+else {
+    echo '<meta name="generator" content="concrete5" />';
+}
+?>
 
 <?php  $u = new User(); ?>
 <script type="text/javascript">
@@ -70,7 +91,8 @@ $this->addHeaderItem($html->javascript('ccm.base.js', false, true), 'CORE');
 
 $favIconFID=intval(Config::get('FAVICON_FID'));
 $appleIconFID =intval(Config::get('IPHONE_HOME_SCREEN_THUMBNAIL_FID'));
-
+$modernIconFID = intval(Config::get('MODERN_TILE_THUMBNAIL_FID'));
+$modernIconBGColor = strval(Config::get('MODERN_TILE_THUMBNAIL_BGCOLOR'));
 
 if($favIconFID) {
 	$f = File::getByID($favIconFID); ?>
@@ -81,9 +103,18 @@ if($favIconFID) {
 if($appleIconFID) {
 	$f = File::getByID($appleIconFID); ?>
 	<link rel="apple-touch-icon" href="<?php  echo $f->getRelativePath()?>"  />
-<?php  } ?>
+<?php  } 
 
-<?php  
+if($modernIconFID) {
+	$f = File::getByID($modernIconFID);
+	?><meta name="msapplication-TileImage" content="<?php  echo $f->getRelativePath(); ?>" /><?php 
+	echo "\n";
+	if(strlen($modernIconBGColor)) {
+		?><meta name="msapplication-TileColor" content="<?php  echo $modernIconBGColor; ?>" /><?php 
+		echo "\n";
+	}
+} 
+
 if (is_object($cp)) { 
 
 	if ($this->editingEnabled()) {

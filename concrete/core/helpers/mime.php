@@ -26,7 +26,7 @@ class Concrete5_Helper_Mime {
 			'application/mathml+xml'        => 'mathml',
 			'application/msword'            => 'doc',
 			'application/oda'               => 'oda',
-			'application/ogg'               => 'ogg',
+			'application/ogg'               => 'ogx',
 			'application/pdf'               => 'pdf',
 			'application/postscript'        => 'ps',
 			'application/rdf+xml'           => 'rdf',
@@ -53,6 +53,8 @@ class Concrete5_Helper_Mime {
 			'audio/x-mpegurl'               => 'm3u',
 			'audio/x-pn-realaudio'          => 'ram',
 			'audio/x-wav'                   => 'wav',
+			'audio/ogg'                     => 'ogg',
+			'audio/ogg'                     => 'oga',
 			'chemical/x-pdb'                => 'pdb',
 			'chemical/x-xyz'                => 'xyz',
 			'image/bmp'                     => 'bmp',
@@ -89,10 +91,13 @@ class Concrete5_Helper_Mime {
 			'video/quicktime'               => 'qt',
 			'video/x-m4v'                   => 'm4v',
 			'video/x-msvideo'               => 'avi',
-			'video/x-ms-wmv'				=> 'wmv'
+			'video/ogg'                     => 'ogv',
+			'video/webm'                    => 'webm',
+			'video/x-ms-wmv'		=> 'wmv'
 		);
 		
 	public function mimeFromExtension($extension) {
+		$extension = strtolower($extension);
 		$mime = array_search($extension, MimeHelper::$mime_types_and_extensions);
 		return $mime;
 		

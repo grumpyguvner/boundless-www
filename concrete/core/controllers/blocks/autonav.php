@@ -333,7 +333,6 @@
 			$sorted_array = $this->sorted_array;
 			$navObjectNames = $this->navObjectNames;
 
-			$allowedParentIDs = ($allowedParentIDs) ? $allowedParentIDs : array();
 			$q = "select Pages.cID from Pages where cIsTemplate = 0 and cIsActive = 1 and cParentID = '{$cParentID}' {$orderBy}";
 			$r = $db->query($q);
 			if ($r) {
@@ -497,19 +496,20 @@
 			}
 		}
 
+		/** Pupulates the $cParentIDArray instance property.
+		* @param int $cID The collection id.
+		*/
 		function populateParentIDArray($cID) {
 			// returns an array of collection IDs going from the top level to the current item
-			$db = Loader::db();
 			$cParentID = Page::getCollectionParentIDFromChildID($cID);
-			if ($cParentID > -1) {
-				if ($cParentID != $stopAt) {
-					if (!in_array($cParentID, $this->cParentIDArray)) {
-						$this->cParentIDArray[] = $cParentID;
-					}
+			if(is_numeric($cParentID)) {
+				if (!in_array($cParentID, $this->cParentIDArray)) {
+					$this->cParentIDArray[] = $cParentID;
+				}
+				if($cParentID > 0) {
 					$this->populateParentIDArray($cParentID);
 				}
 			}
-
 		}
 		
 		/** 
@@ -525,13 +525,17 @@
 		 * New and improved version of "generateNav()" function.
 		 * Use this unless you need to maintain backwards compatibility with older custom templates.
 		 *
+		 * Pass in TRUE for the $ignore_exclude_nav arg if you don't want to exclude any pages
+		 *  (for both the "exclude_nav" and "exclude_subpages_from_nav" attribute).
+		 * This is useful for breadcrumb nav menus, for example.
+		 * 
 		 * Historical note: this must stay a function that gets called by the view templates
 		 * (as opposed to just having the view() method set the variables)
 		 * because we need to maintain the generateNav() function for backwards compatibility with
 		 * older custom templates... and that function unfortunately has side-effects so it cannot
 		 * be called more than once per request (otherwise there will be duplicate items in the nav menu).
 		 */
-		public function getNavItems() {
+		public function getNavItems($ignore_exclude_nav = false) {
 			$c = Page::getCurrentPage();
 
 			//Create an array of parent cIDs so we can determine the "nav path" of the current page
@@ -572,7 +576,7 @@
 					$exclude_page = false;
 				}
 
-				if (!$exclude_page) {
+				if (!$exclude_page || $ignore_exclude_nav) {
 					$includedNavItems[] = $ni;
 				}
 			}

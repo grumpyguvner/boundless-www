@@ -48,7 +48,7 @@ if (!$tp->canInstallPackages()) { ?>
 				<tr>
 					<td class="ccm-marketplace-list-thumbnail" rowspan="2"><img src="<?php echo $ci->getPackageIconURL($pkg)?>" /></td>
 					<td class="ccm-addon-list-description"><h3><?php echo $pkg->getPackageName()?></h3><p><?php echo $pkg->getPackageDescription()?></p>
-					<p><strong><?php echo t('New Version: %s. Upgrading from: %s.', $pkg->getPackageVersionUpdateAvailable(), $pkg->getPackageVersion())?></p>
+					<p><strong><?php echo t('New Version: %s. Upgrading from: %s.', $pkg->getPackageVersionUpdateAvailable(), $pkg->getPackageVersion())?></strong></p>
 
 					</td>
 					<?php  if (!is_object($rpkg)) { ?>
@@ -86,7 +86,7 @@ if (!$tp->canInstallPackages()) { ?>
 				<tr>
 					<td class="ccm-marketplace-list-thumbnail" rowspan="2"><img src="<?php echo $ci->getPackageIconURL($pkg)?>" /></td>
 					<td class="ccm-addon-list-description"><h3><?php echo $pkg->getPackageName()?></h3><p><?php echo $pkg->getPackageDescription()?></p>
-					<p><strong><?php echo t('New Version: %s. Upgrading from: %s.', $pkg->getPackageVersion(), $pkg->getPackageCurrentlyInstalledVersion())?></p>
+					<p><strong><?php echo t('New Version: %s. Upgrading from: %s.', $pkg->getPackageVersion(), $pkg->getPackageCurrentlyInstalledVersion())?></strong></p>
 					</td>
 					<td class="ccm-marketplace-list-install-button"><?php echo $ch->button(t("Update Add-On"), View::url('/dashboard/extend/update', 'do_update', $pkg->getPackageHandle()), "", "primary")?></td>					
 				</tr>

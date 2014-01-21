@@ -4,7 +4,7 @@ $u = new User();
 $form = Loader::helper('form');
 $fp = FilePermissions::getGlobal();
 if (!$fp->canAccessFileManager()) {
-	die(t("Access Denied."));
+	die(t("Unable to access the file manager."));
 }
 
 if ($_POST['task'] == 'delete_files') {
@@ -72,7 +72,7 @@ $searchInstance = Loader::helper('text')->entities($_REQUEST['searchInstance']);
 			
 			<tr>
 				<td><?php echo $fv->getType()?></td>
-				<td class="ccm-file-list-filename" width="100%"><div style="word-wrap: break-word; width: 150px"><?php echo $fv->getTitle()?></td>
+				<td class="ccm-file-list-filename" width="100%"><div style="word-wrap: break-word; width: 150px"><?php echo $fv->getTitle()?></div></td>
 				<td><?php echo date(DATE_APP_DASHBOARD_SEARCH_RESULTS_FILES, strtotime($f->getDateAdded()))?></td>
 				<td><?php echo $fv->getSize()?></td>
 				<td><?php echo $fv->getAuthorName()?></td>

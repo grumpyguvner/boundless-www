@@ -10,7 +10,7 @@ class Concrete5_Library_Cache {
 		static $cache;
 		if (!isset($cache) && defined('DIR_FILES_CACHE')) {
 			if (is_dir(DIR_FILES_CACHE) && is_writable(DIR_FILES_CACHE)) {
-				require_once(DIR_LIBRARIES_3RDPARTY_CORE . '/Zend/Cache.php');
+				Loader::library('3rdparty/Zend/Cache');
 
 				$frontendOptions = array(
 					'lifetime' => CACHE_LIFETIME,
@@ -74,7 +74,6 @@ class Concrete5_Library_Cache {
 	
 	/** 
 	 * Inserts or updates an item to the cache
-	 * If $forceSet is true, we sidestep ENABLE_CACHE. This is for certain operations that
 	 * the cache must always be enabled for (getting remote data, etc..)
 	 */	
 	public function set($type, $id, $obj, $expire = false) {
@@ -96,10 +95,8 @@ class Concrete5_Library_Cache {
 	
 	/** 
 	 * Retrieves an item from the cache
-	 * If $forceGet is true, we sidestep ENABLE_CACHE. This is for certain operations that
-	 * the cache must always be enabled for (getting remote data, etc..)
 	 */	
-	public function get($type, $id, $mustBeNewerThan = false, $forceGet = false) {
+	public function get($type, $id, $mustBeNewerThan = false) {
 		$loc = CacheLocal::get();
 		$key = Cache::key($type, $id);
 		if ($loc->enabled && array_key_exists($key, $loc->cache)) {
@@ -165,18 +162,42 @@ class Concrete5_Library_Cache {
 	 * Completely flushes the cache
 	 */	
 	public function flush() {
-		$cache = Cache::getLibrary();
+		$db = Loader::db();
+		$r = $db->MetaTables();
+
+		// flush the CSS cache
+		if (is_dir(DIR_FILES_CACHE . '/' . DIRNAME_CSS)) {
+			$fh = Loader::helper("file");
+			$fh->removeAll(DIR_FILES_CACHE . '/' . DIRNAME_CSS);
+		}
+		
+		$pageCache = PageCache::getLibrary();
+		if (is_object($pageCache)) {
+			$pageCache->flush();
+		}
+		
+		if (in_array('Config', $r)) {
+			// clear the environment overrides cache
+			$env = Environment::get();
+			$env->clearOverrideCache();
+
+			if(in_array('btCachedBlockRecord', $db->MetaColumnNames('Blocks'))) {
+				$db->Execute('update Blocks set btCachedBlockRecord = null');
+			}
+			if (in_array('CollectionVersionBlocksOutputCache', $r)) {
+				$db->Execute('truncate table CollectionVersionBlocksOutputCache');
+			}
+		}
 		
 		$loc = CacheLocal::get();
 		$loc->cache = array();
-		if (!$cache) {
-			return false;
+
+		$cache = Cache::getLibrary();
+		if ($cache) {
+			$cache->setOption('caching', true);
+			$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
 		}
-		$cache->setOption('caching', true);
-		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
-		if (!ENABLE_CACHE) {
-			Cache::disableCache();
-		}		
+		Events::fire('on_cache_flush', $cache);
 		return true;
 	}
 		

@@ -1,7 +1,7 @@
 <?php  defined('C5_EXECUTE') or die("Access Denied.");
 Loader::block('form');
 
-class Concrete5_Controller_Dashboard_Reports_Forms extends Controller {
+class Concrete5_Controller_Dashboard_Reports_Forms extends DashboardBaseController {
 
 	protected $pageSize=10; 
 
@@ -138,11 +138,28 @@ class Concrete5_Controller_Dashboard_Reports_Forms extends Controller {
 		$pageBase = DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $c->getCollectionID();
 		
 		if( $_REQUEST['action'] == 'deleteForm' ){
-			$this->deleteForm($_REQUEST['bID'], $_REQUEST['qsID']);
+			if (!Loader::helper('validation/token')->validate('deleteForm')) {
+				$this->error->add(t('Invalid Token.'));
+			} else {
+				$this->deleteForm($_REQUEST['bID'], $_REQUEST['qsID']);
+			}
+		}	
+		
+		if( $_REQUEST['action'] == 'deleteFormAnswers' ){
+			if (!Loader::helper('validation/token')->validate('deleteFormAnswers')) {
+				$this->error->add(t('Invalid Token.'));
+			} else {
+				$this->deleteFormAnswers($_REQUEST['qsID']);
+				$this->redirect('/dashboard/reports/forms');
+			}
 		}	
 		
 		if( $_REQUEST['action'] == 'deleteResponse' ){
-			$this->deleteAnswers($_REQUEST['asid']);
+			if (!Loader::helper('validation/token')->validate('deleteResponse')) {
+				$this->error->add(t('Invalid Token.'));
+			} else {
+				$this->deleteAnswers($_REQUEST['asid']);
+			}
 		}		
 		
 		//load surveys
@@ -159,7 +176,7 @@ class Concrete5_Controller_Dashboard_Reports_Forms extends Controller {
 			
 		//load requested survey response
 		if (!empty($_REQUEST['qsid'])) {
-			$questionSet = preg_replace('/[^[:alnum:]]/','',$_REQUEST['qsid']);
+			$questionSet = intval(preg_replace('/[^[:alnum:]]/','',$_REQUEST['qsid']));
 			
 			//get Survey Questions
 			$questionsRS = MiniSurvey::loadQuestions($questionSet);
@@ -206,8 +223,8 @@ class Concrete5_Controller_Dashboard_Reports_Forms extends Controller {
 		$q = 'DELETE FROM btFormAnswerSet WHERE asID = ?';		
 		$r = $db->query($q, $v);
 	}
-	//DELETE FORMS AND ALL SUBMISSIONS
-	private function deleteForm($bID, $qsID){
+	//DELETE A FORM ANSWERS
+	private function deleteFormAnswers($qsID){
 		$db = Loader::db();
 		$v = array(intval($qsID));
 		$q = 'SELECT asID FROM btFormAnswerSet WHERE questionSetId = ?';
@@ -217,6 +234,11 @@ class Concrete5_Controller_Dashboard_Reports_Forms extends Controller {
 			$asID = $row['asID'];
 			$this->deleteAnswers($asID);
 		}
+	}
+	//DELETE FORMS AND ALL SUBMISSIONS
+	private function deleteForm($bID, $qsID){
+		$db = Loader::db();
+		$this->deleteFormAnswers($qsID);
 		
 		$v = array(intval($bID));
 		$q = 'DELETE FROM btFormQuestions WHERE bID = ?';		

@@ -26,11 +26,11 @@ $returnURL = ($_POST['returnURL']) ? $_POST['returnURL'] : $_SERVER['HTTP_REFERE
 	
 	<form action="<?php echo  View::url('/download_file', 'submit_password', $fID) ?>" method="post">
 		<?php  if(isset($force)) { ?>
-			<input type="hidden" value="<?php echo force?>" name="force" />
+			<input type="hidden" value="<?php echo  $force ?>" name="force" />
 		<?php  } ?>
 		<input type="hidden" value="<?php echo  $returnURL ?>" name="returnURL" />
 		<input type="hidden" value="<?php echo  $rcID ?>" name="rcID"/>
-		<label for="password"><?php echo t('Password')?>: <input type="text" name="password" /></label>
+		<label for="password"><?php echo t('Password')?>: <input type="password" name="password" /></label>
 		<br /><br />
 		<button type="submit"><?php echo t('Download')?></button>
 	</form>

@@ -13,6 +13,8 @@ tinyMCE.init({
 	height: "<?php echo $textEditorHeight?>px", 	
 	inlinepopups_skin : "concreteMCE",
 	theme_concrete_buttons2_add : "spellchecker",
+	browser_spellcheck: true,
+	gecko_spellcheck: true,
 	relative_urls : false,
 	document_base_url: '<?php echo BASE_URL . DIR_REL?>/',
 	convert_urls: false,

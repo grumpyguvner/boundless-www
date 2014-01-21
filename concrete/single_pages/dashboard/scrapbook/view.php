@@ -146,12 +146,14 @@ $(function(){ GlobalScrapbook.init(); });
 
 
 
-<?php  if(!$scrapbookName){ ?>
+<?php 
+$scrapbookDeprecationNote = t('<strong>Note</strong>: Scrapbooks are preserved for backward compatibility, but you really should be using <a href="%s">stacks</a> instead.', View::url('/dashboard/blocks/stacks'));
 
-	<h1><span><?php echo t('Choose a Scrapbook')?></span></h1>
-	<div class="ccm-dashboard-inner ccm-ui"> 
+if(!$scrapbookName){ ?>
+
+	<?php echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(t('Choose a Scrapbook'), $scrapbookDeprecationNote)?>
 	<div class="block-message warning alert-message"><p><?php echo t('<strong>Note</strong>: Scrapbooks are preserved for backward compatibility, but you really should be using <a href="%s">stacks</a> instead.', View::url('/dashboard/blocks/stacks'))?></p></div>
-		<table id="availableScrapbooks" border="0" cellspacing="1" class="grid-list" >
+		<table id="availableScrapbooks" border="0" cellspacing="1" class="grid-list table table-bordered" >
 			<tr>
 				<td class="header">
 					<?php echo t('Scrapbook Name')?>
@@ -207,27 +209,19 @@ $(function(){ GlobalScrapbook.init(); });
 			</div>
 			</div>
 
-
-
-			
 			</form>
-			</td>
-		</tr>
-		</table>
 		
 		
 		<div class="ccm-spacer"></div>			
 		
-	</div>
+	<?php echo Loader::helper('concrete/dashboard')->getDashboardPaneFooterWrapper(false)?>
 
 
 
 <?php  }else{ ?>
 
-	<h1><span><?php echo htmlentities($scrapbookName, ENT_QUOTES, APP_CHARSET) ?></span></h1>
+	<?php echo Loader::helper('concrete/dashboard')->getDashboardPaneHeaderWrapper(htmlentities($scrapbookName, ENT_QUOTES, APP_CHARSET), $scrapbookDeprecationNote)?>
 	
-	<div class="ccm-dashboard-inner ccm-ui"> 
-
 		<a style="float: right" href="<?php echo View::url($cPath) ?>"><?php echo  t("&laquo; Return to Scrapbook List") ?></a>		
 		
 		<div class="sillyIE7"><?php echo  $ih->button_js( t('Add Block to Scrapbook'), 'GlobalScrapbook.addBlock(event)','left'); ?></div>
@@ -287,7 +281,7 @@ $(function(){ GlobalScrapbook.init(); });
 							</div>
 							<div class="view">
 								<a onclick="GlobalScrapbook.toggleRename(<?php echo intval($b->bID) ?>)" >
-									<?php echo $bt->getBlockTypeName()?>: "<?php echo $b->getBlockName() ?>"
+									<?php echo t($bt->getBlockTypeName())?>: "<?php echo $b->getBlockName() ?>"
 								</a>&nbsp;
 							</div>
 							<div class="edit">
@@ -312,6 +306,6 @@ $(function(){ GlobalScrapbook.init(); });
 		</div> 	
 		
 	
-	</div>
+	</div><?php echo Loader::helper('concrete/dashboard')->getDashboardPaneFooterWrapper(false)?>
 
 <?php  } ?>

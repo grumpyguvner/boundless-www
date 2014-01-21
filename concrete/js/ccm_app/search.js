@@ -1,3 +1,7 @@
+/* 
+ * Search
+ */
+ 
 var ccm_searchActivatePostFunction = new Array();
 
 ccm_setupAdvancedSearchFields = function(searchType) {
@@ -197,17 +201,23 @@ ccm_activateEditablePropertiesGrid = function() {
 		});
 		
 		trow.find('form').submit(function() {
-			ccm_submitEditablePropertiesGrid(trow);
 			return false;
 		});
 		
 		trow.find('.ccm-attribute-editable-field-save-button').parent().click(function() {
+			var task = trow.find('form input[name=task]');
+			if (task.val() == 'clear_extended_attribute') {
+				task.val(task.attr('data-original-task'));
+				task.attr('data-original-task', '');
+			}
 			ccm_submitEditablePropertiesGrid(trow);
 		});
 
 		trow.find('.ccm-attribute-editable-field-clear-button').parent().unbind();
 		trow.find('.ccm-attribute-editable-field-clear-button').parent().click(function() {
-			trow.find('form input[name=task]').val('clear_extended_attribute');
+			var task = trow.find('form input[name=task]');
+			task.attr('data-original-task', task.val());
+			task.val('clear_extended_attribute');
 			ccm_submitEditablePropertiesGrid(trow);
 			return false;
 		});

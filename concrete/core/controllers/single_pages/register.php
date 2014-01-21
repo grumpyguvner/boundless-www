@@ -120,7 +120,7 @@ class Concrete5_Controller_Register extends Controller {
 			if ($uak->isAttributeKeyRequiredOnRegister()) {
 				$e1 = $uak->validateAttributeForm();
 				if ($e1 == false) {
-					$e->add(t('The field "%s" is required', $uak->getAttributeKeyName()));
+					$e->add(t('The field "%s" is required', tc('AttributeKeyName', $uak->getAttributeKeyName())));
 				} else if ($e1 instanceof ValidationErrorHelper) {
 					$e->add($e1);
 				}
@@ -153,13 +153,14 @@ class Concrete5_Controller_Register extends Controller {
 						}
 					}
 					
-					$mh->addParameter('uName', $process->getUserName());
-					$mh->addParameter('uID', $process->getUserID());
+					$mh->addParameter('uID',    $process->getUserID());
+					$mh->addParameter('user',   $process);
+					$mh->addParameter('uName',  $process->getUserName());
 					$mh->addParameter('uEmail', $process->getUserEmail());
 					$attribs = UserAttributeKey::getRegistrationList();
 					$attribValues = array();
 					foreach($attribs as $ak) {
-						$attribValues[] = $ak->getAttributeKeyDisplayHandle() . ': ' . $process->getAttribute($ak->getAttributeKeyHandle(), 'display');		
+						$attribValues[] = tc('AttributeKeyName', $ak->getAttributeKeyName()) . ': ' . $process->getAttribute($ak->getAttributeKeyHandle(), 'display');		
 					}						
 					$mh->addParameter('attribs', $attribValues);
 					

@@ -69,7 +69,7 @@ $list = UserAttributeKey::getList();
 	foreach($list as $ak) { 
 		if ($pk->validate($ak)) { ?>
 
-		<li><label><?php echo $form->checkbox('ak_' . $ak->getAttributeKeyHandle(), 1, $fldc->contains($ak))?> <span><?php echo $ak->getAttributeKeyDisplayHandle()?></span></label></li>
+		<li><label><?php echo $form->checkbox('ak_' . $ak->getAttributeKeyHandle(), 1, $fldc->contains($ak))?> <span><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></span></label></li>
 	
 	<?php  } 
 	

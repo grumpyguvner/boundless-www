@@ -13,13 +13,16 @@ $dh = Loader::helper('date');
 $urlhelper = Loader::helper('url');
 /* @var $json JsonHelper */
 $json = Loader::helper('json');
+/* @var $valt ValidationTokenHelper */
+$valt = Loader::helper('validation/token');
 /* @var $db DataBase */
 $db = Loader::db();
 ?>
 <script>
 jQuery(function($) {
 	var deleteResponse = (<?php echo $json->encode(t('Are you sure you want to delete this form submission?'))?>),
-		deleteForm = (<?php echo $json->encode(t('Are you sure you want to delete this form and its form submissions?'))?>);
+		deleteForm = (<?php echo $json->encode(t('Are you sure you want to delete this form and its form submissions?'))?>),
+		deleteFormAnswers = (<?php echo $json->encode(t('Are you sure you want to delete this form submissions?'))?>);
 	$('.delete-response').live('click', function(e) {
 		if (!confirm(deleteResponse)) {
 			e.preventDefault();
@@ -30,8 +33,37 @@ jQuery(function($) {
 			e.preventDefault();
 		}
 	});
+	$('.delete-form-answers').live('click', function(e) {
+		if (!confirm(deleteFormAnswers)) {
+			e.preventDefault();
+		}
+	});
 });
 </script>
+<style>
+	::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 7px;
+	height: 6px;
+}
+::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+	background-color: rgba(0,0,0,.5);
+	-webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+
+#wide-content-notification {
+	margin-left: 5px;
+	display: none;
+	color: #aaa;
+}
+
+.form-results-container {
+	width: 100%;
+	overflow: auto;
+}
+
+</style>
 <?php if(!isset($questionSet)):?>
 <?php echo $h->getDashboardPaneHeaderWrapper(t('Form Results'));?>
 <?php 
@@ -80,8 +112,20 @@ if ($showTable) { ?>
 			<td>
 				<?php echo $ih->button(t('View Responses'), DIR_REL . '/index.php?cID=' . $c->getCollectionID().'&qsid='.$qsid, 'left', 'small')?>
 				<?php echo $ih->button(t('Open Page'), $url, 'left', 'small')?>
+				<form method="post" action="" style="display: inline">
+					<input type="hidden" name="qsID" value="<?php echo  intval($qsid) ?>" />
+					<input type="hidden" name="action" value="deleteFormAnswers" />
+					<?php  $valt->output('deleteFormAnswers') ?>
+					<?php echo  $ih->submit(t('Delete Submissions'), false, 'left', 'small error delete-form-answers') ?>
+				</form>
 				<?php if(!$in_use):?>
-				<?php echo $ih->button(t('Delete'), $this->action('').'?bID='.$survey['bID'].'&qsID='.$qsid.'&action=deleteForm', 'left', 'small error delete-form')?>
+					<form method="post" action="" style="display: inline">
+						<input type="hidden" name="bID" value="<?php echo  intval($survey['bID']) ?>" />
+						<input type="hidden" name="qsID" value="<?php echo  intval($qsid) ?>" />
+						<input type="hidden" name="action" value="deleteForm" />
+						<?php  $valt->output('deleteForm') ?>
+						<?php echo  $ih->submit(t('Delete'), false, 'left', 'small error delete-form') ?>
+					</form>
 				<?php endif?>
 			</td>
 		</tr>
@@ -96,77 +140,88 @@ if ($showTable) { ?>
 <?php echo $h->getDashboardPaneHeaderWrapper(t('Responses to %s', $surveys[$questionSet]['surveyName']), false, false, false);?>
 <div class="ccm-pane-body <?php  if(!$paginator || !strlen($paginator->getPages())>0){ ?> ccm-pane-body-footer <?php  } ?>">
 <?php if(count($answerSets) == 0):?>
-<div><?php echo t('No one has yet submitted this form.')?></div>
-<?php else:?>
+	<div><?php echo t('No one has yet submitted this form.')?></div>
+	<?php else:?>
 
-<div class="ccm-list-action-row">
-	<a id="ccm-export-results" href="<?php echo $this->action('excel', '?qsid=' . $questionSet)?>"><span></span><?php echo t('Export to Excel')?></a>
-</div>
+	<div class="ccm-list-action-row">
+		<a id="ccm-export-results" href="<?php echo $this->action('excel', '?qsid=' . $questionSet)?>"><span></span><?php echo t('Export to Excel')?></a>
+	</div>
 
-<table class="table table-striped">
-	<thead>
-		<tr>
-			<?php  if($_REQUEST['sortBy']=='chrono') { ?>
-			<th class="header headerSortDown">
-				<a href="<?php echo $text->entities($urlhelper->unsetVariable('sortBy'))?>">
-			<?php  } else { ?>
-			<th class="header headerSortUp">
-				<a href="<?php echo $text->entities($urlhelper->setVariable('sortBy', 'chrono'))?>">
-			<?php  } ?>		
-				<?php echo t('Date')?>
-				</a>
-			</th>
-			<th><?php echo t('User')?></th>
-<?php foreach($questions as $question):?>
-			<th><?php echo $question['question']?></th>
-<?php endforeach?>
-			<th><?php echo t('Actions')?></th>
-		</tr>	
-	</thead>
-	<tbody>
-<?php foreach($answerSets as $answerSetId => $answerSet):?>
-		<tr>
-			<td>
-<?php echo $dh->getSystemDateTime($answerSet['created'])?></td>
-			<td><?php 
-			if ($answerSet['uID'] > 0) { 
-				$ui = UserInfo::getByID($answerSet['uID']);
-				if (is_object($ui)) {
-					print $ui->getUserName().' ';
-				}
-				print t('(User ID: %s)', $answerSet['uID']);
+	<div class="form-results-container">
+		<script>
+		$(document).ready(function(){
+			if($('.form-results-container')[0].scrollWidth > $('.ccm-pane-body').width()) {
+				$('#wide-content-notification').show();
 			}
-			?></td>
-<?php foreach($questions as $questionId => $question):
-			if ($question['inputType'] == 'fileupload') {
-				$fID = (int) $answerSet['answers'][$questionId]['answer'];
-				$file = File::getByID($fID);
-				if ($fID && $file) {
-					$fileVersion = $file->getApprovedVersion();
-					echo '<td><a href="' . $fileVersion->getRelativePath() .'">'.
-						$text->entities($fileVersion->getFileName()).'</a></td>';
-				} else {
-					echo '<td>'.t('File not found').'</td>';
-				}
-			} else if($question['inputType'] == 'text') {
-				echo '<td>'.$text->entities($answerSet['answers'][$questionId]['answerLong']).'</td>';
-			} else {
-				echo '<td>'.$text->entities($answerSet['answers'][$questionId]['answer']).'</td>';
-			}
-			
-endforeach?>
-			<td>
-				<?php echo $ih->button(
-					t("Delete"),
-					$this->action('').'?qsid='.$answerSet['questionSetId'].'&asid='.$answerSet['asID'].'&action=deleteResponse',
-					'left',
-					'danger delete-response small'
-				)?>
-			</td>
-		</tr>
-<?php endforeach?>
-	</tbody>
-</table>
+		});
+		</script>
+		<p id="wide-content-notification"><?php  echo t('* Scroll right to view full results'); ?></p>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<?php  if($_REQUEST['sortBy']=='chrono') { ?>
+					<th class="header headerSortDown">
+						<a href="<?php echo $text->entities($urlhelper->unsetVariable('sortBy'))?>">
+					<?php  } else { ?>
+					<th class="header headerSortUp">
+						<a href="<?php echo $text->entities($urlhelper->setVariable('sortBy', 'chrono'))?>">
+					<?php  } ?>
+						<?php echo t('Date')?>
+						</a>
+					</th>
+					<th><?php echo t('User')?></th>
+		<?php foreach($questions as $question):?>
+					<th><?php echo $question['question']?></th>
+		<?php endforeach?>
+					<th><?php echo t('Actions')?></th>
+				</tr>
+			</thead>
+			<tbody>
+		<?php foreach($answerSets as $answerSetId => $answerSet):?>
+				<tr>
+					<td>
+		<?php echo $dh->getSystemDateTime($answerSet['created'])?></td>
+					<td><?php 
+					if ($answerSet['uID'] > 0) {
+						$ui = UserInfo::getByID($answerSet['uID']);
+						if (is_object($ui)) {
+							print $ui->getUserName().' ';
+						}
+						print t('(User ID: %s)', $answerSet['uID']);
+					}
+					?></td>
+		<?php foreach($questions as $questionId => $question):
+					if ($question['inputType'] == 'fileupload') {
+						$fID = (int) $answerSet['answers'][$questionId]['answer'];
+						$file = File::getByID($fID);
+						if ($fID && $file) {
+							$fileVersion = $file->getApprovedVersion();
+							echo '<td><a href="' . $fileVersion->getRelativePath() .'">'.
+								$text->entities($fileVersion->getFileName()).'</a></td>';
+						} else {
+							echo '<td>'.t('File not found').'</td>';
+						}
+					} else if($question['inputType'] == 'text') {
+						echo '<td>'.$text->entities($answerSet['answers'][$questionId]['answerLong']).'</td>';
+					} else {
+						echo '<td>'.$text->entities($answerSet['answers'][$questionId]['answer']).'</td>';
+					}
+
+		endforeach?>
+					<td>
+						<form method="post" action="" style="display: inline">
+							<input type="hidden" name="qsid" value="<?php echo  intval($answerSet['questionSetId']) ?>" />
+							<input type="hidden" name="asid" value="<?php echo  intval($answerSet['asID']) ?>" />
+							<input type="hidden" name="action" value="deleteResponse" />
+							<?php  $valt->output('deleteResponse') ?>
+							<?php echo  $ih->submit(t('Delete'), false, 'left', 'danger delete-response small') ?>
+						</form>
+					</td>
+				</tr>
+		<?php endforeach?>
+			</tbody>
+		</table>
+	</div>
 </div>
 <?php  if($paginator && strlen($paginator->getPages())>0){ ?>	 
 <div class="ccm-pane-footer">

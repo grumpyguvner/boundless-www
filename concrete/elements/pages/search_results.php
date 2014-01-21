@@ -125,8 +125,13 @@ if (isset($_REQUEST['searchInstance'])) {
 				cAlias="false"
 				<?php echo $dsh->getPermissionsNodes($permissionArray);?>>
 			<?php  if (!$searchDialog) { ?><td class="ccm-<?php echo $searchInstance?>-list-cb" style="vertical-align: middle !important"><input type="checkbox" value="<?php echo $cobj->getCollectionID()?>" /></td><?php  } ?>
-
+			<?php  if ($pageList->isIndexedSearch()){?>
+			<td>
+			   <?php echo  $cobj->getPageIndexScore();?>
+			</td>
+			<?php  } ?>
 			<?php  foreach($columns->getColumns() as $col) { ?>
+
 				<?php  if ($col->getColumnKey() == 'cvName') { ?>
 					<td class="ccm-page-list-name"><?php echo $txt->highlightSearch($cobj->getCollectionName(), $keywords)?></td>		
 				<?php  } else { ?>

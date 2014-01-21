@@ -36,7 +36,7 @@ function printAttributeRow($ak, $uo, $assignment) {
 	
 	$html = '
 	<tr class="ccm-attribute-editable-field">
-		<td width="250" style="vertical-align:middle;"><a style="font-weight:bold; line-height:18px;" href="javascript:void(0)">' . $ak->getAttributeKeyDisplayHandle() . '</a></td>
+		<td width="250" style="vertical-align:middle;"><a style="font-weight:bold; line-height:18px;" href="javascript:void(0)">' . tc('AttributeKeyName', $ak->getAttributeKeyName()) . '</a></td>
 		<td class="ccm-attribute-editable-field-central" style="vertical-align:middle;"><div class="ccm-attribute-editable-field-text">' . $text . '</div>
 		<form method="post" style="margin-bottom:0;" action="' . View::url('/dashboard/users/search', 'edit_attribute') . '">
 		<input type="hidden" name="uakID" value="' . $ak->getAttributeKeyID() . '" />
@@ -57,7 +57,7 @@ function printAttributeRow($ak, $uo, $assignment) {
 
 	$html = '
 	<tr>
-		<td width="250">' . $ak->getAttributeKeyDisplayHandle() . '</th>
+		<td width="250">' . tc('AttributeKeyName', $ak->getAttributeKeyName()) . '</th>
 		<td class="ccm-attribute-editable-field-central" colspan="2">' . $text . '</td>
 	</tr>';	
 	}
@@ -90,6 +90,20 @@ if (intval($_GET['uID'])) {
 					throw new Exception(t('Invalid token.  Unable to activate user.'));
 				}else{		
 					$uo->activate();
+					$mh = Loader::helper('mail');
+					$mh->to($uo->getUserEmail());
+					$mh->load('user_registered_approval_complete');
+					if(defined('EMAIL_ADDRESS_REGISTER_NOTIFICATION_FROM')) {
+						$mh->from(EMAIL_ADDRESS_REGISTER_NOTIFICATION_FROM, t('Website Registration Notification'));
+					} else {
+						$adminUser = UserInfo::getByID(USER_SUPER_ID);
+						$mh->from($adminUser->getUserEmail(), t('Website Registration Notification'));
+					}
+					$mh->addParameter('uID',    $uo->getUserID());
+					$mh->addParameter('user',   $uo);
+					$mh->addParameter('uName',  $uo->getUserName());
+					$mh->addParameter('uEmail', $uo->getUserEmail());
+					$mh->sendMail();
 					$uo = UserInfo::getByID(intval($_GET['uID']));
 					$this->controller->redirect('/dashboard/users/search?uID=' . intval($_GET['uID']) . '&activated=1');
 				}
@@ -193,6 +207,7 @@ if (is_object($uo)) {
         
         
 		<table class="table" border="0" cellspacing="0" cellpadding="0" width="100%">
+			<tbody>
 	        <?php  if ($assignment->allowEditPassword()) { ?>
 
             	<tr>
@@ -461,7 +476,7 @@ if (is_object($uo)) {
 			?>
 			
 		<div class="row">
-		<div class="span5" style=""><p><strong><?php echo $uk->getAttributeKeyDisplayHandle()?></strong></p></div>
+		<div class="span5" style=""><p><strong><?php echo tc('AttributeKeyName', $uk->getAttributeKeyName())?></strong></p></div>
 		<div class="span5"><p>
 			<?php echo $uo->getAttribute($uk->getAttributeKeyHandle(), 'displaySanitized', 'display')?>
 		</p></div>
@@ -528,6 +543,7 @@ ccm_activateEditableProperties = function() {
 		});
 		
 		trow.find('.ccm-attribute-editable-field-save-button').parent().click(function() {
+			trow.find('form input[name=task]').val('update_extended_attribute');
 			ccm_submitEditableProperty(trow);
 		});
 

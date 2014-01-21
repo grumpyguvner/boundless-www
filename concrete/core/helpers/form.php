@@ -254,7 +254,17 @@ class Concrete5_Helper_Form {
 	 */
 	public function text($key, $valueOrArray = false, $miscFields = array()) {
 		return $this->inputType($key, 'text', $valueOrArray, $miscFields);
-
+	}
+	
+	/**
+	* Renders a number input field.
+	* @param string $key Input element's name and id
+	* @param string|array $valueOrArray Either the default value (subject to be overridden by $_REQUEST) or $miscFields (see below)
+	* @param array $miscFields A hash array with html attributes as key/value pairs (possibly including "class")
+	* @return $html
+	*/
+	public function number($key, $valueOrArray = false, $miscFields = array()) {
+		return $this->inputType($key, 'number', $valueOrArray, $miscFields);	
 	}
 
 	/**
@@ -330,7 +340,7 @@ class Concrete5_Helper_Form {
 
 		foreach($optionValues as $k => $value) {
 			$selected = "";
-			if ($valueOrArray == $k && !isset($_REQUEST[$_key]) || ($val !== false && $val == $k) || (is_array($_REQUEST[$_key]) && (in_array($k, $_REQUEST[$_key])))) {
+			if ((string)$valueOrArray === (string)$k  && !isset($_REQUEST[$_key]) || ($val !== false && $val == $k) || (is_array($_REQUEST[$_key]) && (in_array($k, $_REQUEST[$_key])))) {
 				$selected = 'selected="selected"';
 			}
 			$str .= '<option value="' . $k . '" ' . $selected . '>' . $value . '</option>';

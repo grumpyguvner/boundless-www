@@ -14,6 +14,7 @@ $dh = Loader::helper('date');
 	<form method="post" action="<?php echo $c->getCollectionAction()?>" id="ccmAddPage" onsubmit="jQuery.fn.dialog.showLoader()" class="dialog-form">		
 	<input type="hidden" name="rel" value="<?php echo $_REQUEST['rel']?>" />
 	<input type="hidden" name="ctID" value="<?php echo $_REQUEST['ctID']?>" />
+	<input type="hidden" name="mode" value="<?php echo $_REQUEST['mode']?>" />
 
 	<div id="ccm-add-page-information">
 		
@@ -70,7 +71,7 @@ $dh = Loader::helper('date');
 	
 	
 		<div class="clearfix">
-			<label><?php echo $ak->getAttributeKeyName()?></label>
+			<label><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></label>
 			<div class="input">
 			<?php echo $ak->render('composer', $caValue); ?>
 			</div>
@@ -146,7 +147,8 @@ $dh = Loader::helper('date');
 			$('#ccm-url-slug-loader').show();
 			$.post('<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/pages/url_slug', {
 				'token': '<?php echo Loader::helper('validation/token')->generate('get_url_slug')?>',
-				'name': val
+				'name': val,
+				'parentID' : '<?php  echo $c->getCollectionId()  ?>'
 			}, function(r) {
 				$('#ccm-url-slug-loader').hide();
 				$('#ccmAddPage input[name=cHandle]').val(r);
@@ -194,7 +196,7 @@ for ($i = 0; $i < count($ctArray); $i++) {
 					
 					<?php  $class = ($ct->getCollectionTypeID() == $ctID) ? 'ccm-item-selected' : ''; ?>
 			
-					<li class="<?php echo $class?>"><a class="dialog-launch" dialog-width="600" dialog-title="<?php echo t('Add %s', Loader::helper('text')->entities($ct->getCollectionTypeName()))?>" dialog-height="310" href="<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/edit_collection_popup?cID=<?php echo $_REQUEST['cID']?>&ctask=add&rel=<?php echo $_REQUEST['rel']?>&ctID=<?php echo $ct->getCollectionTypeID()?>"><?php echo  $ct->getCollectionTypeIconImage(); ?></a>
+					<li class="<?php echo $class?>"><a class="dialog-launch" dialog-width="600" dialog-title="<?php echo t('Add %s', Loader::helper('text')->entities($ct->getCollectionTypeName()))?>" dialog-height="310" href="<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/edit_collection_popup?cID=<?php echo $_REQUEST['cID']?>&ctask=add&rel=<?php echo $_REQUEST['rel']?>&mode=<?php echo $_REQUEST['mode']?>&ctID=<?php echo $ct->getCollectionTypeID()?>"><?php echo  $ct->getCollectionTypeIconImage(); ?></a>
 					<span id="pgTypeName<?php echo $ct->getCollectionTypeID()?>"><?php echo $ct->getCollectionTypeName()?></span>
 					</li> 
 				

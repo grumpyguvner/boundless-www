@@ -42,10 +42,11 @@ if (!$tp->canAccessGroupSearch()) {
 		<form id="ccm-group-search" style=""  method="get" action="<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/select_group/">
 		<div id="ccm-group-search-fields" class="ccm-ui">
 		
-		<input type="text" id="ccm-group-search-keywords" name="gKeywords" value="<?php echo $_REQUEST['gKeywords']?>" class="ccm-text" style="width: 100px" />
+		<input type="text" id="ccm-group-search-keywords" name="gKeywords" value="<?php echo htmlspecialchars($_REQUEST['gKeywords'])?>" class="ccm-text" style="width: 100px" />
 		<input type="submit" value="<?php echo t('Search')?>" class="btn" />
 		<input type="hidden" name="group_submit_search" value="1" />
-		<input type="hidden" name="include_core_groups" value="<?php echo $_REQUEST['include_core_groups']?>" />
+		<input type="hidden" name="callback" value="<?php echo htmlspecialchars($_REQUEST['callback'])?>" />
+		<input type="hidden" name="include_core_groups" value="<?php echo htmlspecialchars($_REQUEST['include_core_groups'])?>" />
 		</div>
 		</form>
 	</div>
@@ -70,7 +71,7 @@ if (!$tp->canAccessGroupSearch()) {
 	
 	<div id="ccm-group-paging" class="ccm-pane-dialog-pagination">
 	<?php 
-	$url = REL_DIR_FILES_TOOLS_REQUIRED . '/select_group?gKeywords=' . $_REQUEST['gKeywords'] . '&include_core_groups=' . $_REQUEST['include_core_groups'] . '&' . PAGING_STRING . '=%pageNum%';
+	$url = REL_DIR_FILES_TOOLS_REQUIRED . '/select_group?callback=' . htmlspecialchars($_REQUEST['callback']) . '&gKeywords=' . htmlspecialchars($_REQUEST['gKeywords']) . '&include_core_groups=' . htmlspecialchars($_REQUEST['include_core_groups']) . '&' . PAGING_STRING . '=%pageNum%';
 	$gl->displayPagingV2($url);
 	?>
 	</div>
@@ -94,7 +95,7 @@ if (!$tp->canAccessGroupSearch()) {
 	
 	<script type="text/javascript">
 	$(function() {
-		ccm_setupGroupSearch('<?php echo Loader::helper('text')->entities($_REQUEST['callback'])?>');
+		ccm_setupGroupSearch('<?php echo htmlspecialchars($_REQUEST['callback'])?>');
 	});
 	</script>
 <?php  } ?>

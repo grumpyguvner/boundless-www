@@ -19,9 +19,6 @@ class Concrete5_Controller_Upgrade extends Controller {
 	public function on_start() {
 		$this->secCheck();
 		// if you just reverted, but didn't manually clear out your files - cache would be a prob here.
-		$ca = new Cache();
-		$ca->flush();
-		Cache::disableCache();
 		Cache::disableLocalCache();
 		$this->site_version = Config::get('SITE_APP_VERSION');
 		Database::ensureEncoding();
@@ -172,6 +169,15 @@ class Concrete5_Controller_Upgrade extends Controller {
 			$ugvs[] = "version_5602";
 		}
 
+		if (version_compare($sav, '5.6.1', '<')) { 
+			$ugvs[] = "version_561";
+		}
+
+		if (version_compare($sav, '5.6.2', '<')) { 
+			$ugvs[] = "version_562";
+		}
+
+
 		foreach($ugvs as $ugh) {
 			$this->upgrades[] = Loader::helper('concrete/upgrade/' . $ugh);
 		}
@@ -196,26 +202,23 @@ class Concrete5_Controller_Upgrade extends Controller {
 		}
 	}
 	
-	protected function xmlAppend($element1, $element2) {
-		$to = dom_import_simplexml($element1);
-		$from = dom_import_simplexml($element2);
-		$to->appendChild($to->ownerDocument->importNode($from, true));
-	}
-
 	protected function refreshDatabaseTables($tables) { 
 		$dbxml = simplexml_load_file(DIR_BASE_CORE . '/config/db.xml');
 		
 		$output = new SimpleXMLElement("<schema></schema>");
 		$output->addAttribute('version', '0.3');
 		
+		$th = Loader::helper("text");
+
 		foreach($dbxml->table as $t) {
 			$name = (string) $t['name'];
 			if (in_array($name, $tables)) {
-				$this->xmlAppend($output, $t);
+				$th->appendXML($output, $t);
 			}
 		}
 		
 		$xml = $output->asXML();
+
 		if ($xml) {
 			$file = Loader::helper('file')->getTemporaryDirectory() . '/tmpupgrade_' . time() . '.xml';
 			@file_put_contents($file, $xml);
@@ -232,20 +235,22 @@ class Concrete5_Controller_Upgrade extends Controller {
 		$runMessages = array();
 		$prepareMessages = array();
 		try {
+			Cache::flush();
 			$this->set_upgrades();
+
 			foreach($this->upgrades as $ugh) {
 				if (method_exists($ugh, 'prepare')) {
 					$prepareMessages[] =$ugh->prepare($this);
 				}
+
 				if (isset($ugh->dbRefreshTables) && count($ugh->dbRefreshTables) > 0) {
 					$this->refreshDatabaseTables($ugh->dbRefreshTables);
 				}
-			}
-			
-			foreach($this->upgrades as $ugh) {
+
 				if (method_exists($ugh, 'run')) {
 					$runMessages[] = $ugh->run();
 				}
+
 			}
 			
 			$message = '';
@@ -272,7 +277,7 @@ class Concrete5_Controller_Upgrade extends Controller {
 			$upgrade = true;
 		} catch(Exception $e) {
 			$upgrade = false;
-			$message .= '<div class="alert-message block-message error"><p>' . t('An Unexpected Error occurred while upgrading: %s', $e->getMessage()) . '</p></div>';
+			$message .= '<div class="alert-message block-message error"><p>' . t('An Unexpected Error occurred while upgrading: %s', $e->getTraceAsString()) . '</p></div>';
 		}
 		
 		if ($upgrade) {

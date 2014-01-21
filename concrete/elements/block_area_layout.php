@@ -89,9 +89,9 @@ if(!$layout ){
 			</tr>			
 			
 			<tr>
-				<td class="padBottom"><?php echo  t('Lock Widths') ?>:</td>
+				<td class="padBottom"><label for="locked"><?php echo  t('Lock Widths') ?>:</label></td>
 				<td class="val padBottom">
-					<input name="locked" type="checkbox" value="1" <?php echo  ( intval($layout->locked) ) ? 'checked="checked"' : '' ?> />
+					<input id="locked" name="locked" type="checkbox" value="1" <?php echo  ( intval($layout->locked) ) ? 'checked="checked"' : '' ?> />
 				</td>				
 			</tr>			
 							
@@ -119,24 +119,28 @@ if(!$layout ){
 	
 	<?php  if ( is_object($layoutPreset) ) { ?>
 		<div id="layoutPresetActions" style="display: none">
-			<div><?php echo $form->radio('layoutPresetAction', 'update_existing_preset', true)?> <?php echo t('Update "%s" preset everywhere it is used?', $layoutPreset->getLayoutPresetName())?></div>
-			<div><?php echo $form->radio('layoutPresetAction', 'save_as_custom')?> <?php echo t('Use this layout here, and leave "%s" unchanged?', $layoutPreset->getLayoutPresetName())?></div>
-			<div><?php echo $form->radio('layoutPresetAction', 'create_new_preset')?> <?php echo t('Save this style as a new preset?')?><br/><span style="margin-left: 20px"><?php echo $form->text('layoutPresetNameAlt', array('style' => 'width:  127px', 'disabled' => true))?></span></div>
+			<label class="radio"><?php echo $form->radio('layoutPresetAction', 'update_existing_preset', true)?> <?php echo t('Update "%s" preset everywhere it is used?', $layoutPreset->getLayoutPresetName())?></label>
+			<label class="radio"><?php echo $form->radio('layoutPresetAction', 'save_as_custom')?> <?php echo t('Use this layout here, and leave "%s" unchanged?', $layoutPreset->getLayoutPresetName())?></label>
+			<label class="radio"><?php echo $form->radio('layoutPresetAction', 'create_new_preset')?> <?php echo t('Save this style as a new preset?')?><br/><span style="margin-left: 20px"><?php echo $form->text('layoutPresetNameAlt', array('style' => 'width:  127px', 'disabled' => true))?></span></label>
 		</div>
 	<?php  } ?>	
 
 	<div id="layoutPresetActionNew" style="margin-bottom:16px;"> 
-		<?php echo $form->checkbox('layoutPresetAction', 'create_new_preset')?> 
-		<?php echo t('Save this style as a new preset.')?>
+		<label for="layoutPresetAction" class="checkbox inline">
+			<?php echo $form->checkbox('layoutPresetAction', 'create_new_preset')?> 
+			<?php echo t('Save this style as a new preset.')?>
+		</label>
 		<span style="margin-left: 10px"><?php echo $form->text('layoutPresetName', array('style' => 'width:  127px', 'disabled' => true))?></span>
 	</div>
 	
 	
 	
-	<div class="ccm-buttons dialog-buttons">
-		<a href="#" class="btn ccm-button-left cancel" onclick="jQuery.fn.dialog.closeTop()"><?php echo t('Cancel')?></a>
-		<a href="javascript:void(0)" onclick="$('#ccmAreaLayoutForm').submit()" class="ccm-button-right accept btn primary"><?php echo intval($layout->layoutID)?t('Save Changes'):t('Add')?></a>
-	</div>	 
+	<?php  if(!$_REQUEST['refresh']) { ?>
+		<div class="ccm-buttons dialog-buttons">
+			<a href="#" class="btn ccm-button-left cancel" onclick="jQuery.fn.dialog.closeTop(); return false"><?php echo t('Cancel')?></a>
+			<a href="javascript:void(0)" onclick="$('#ccmAreaLayoutForm').submit()" class="ccm-button-right accept btn primary"><?php echo intval($layout->layoutID)?t('Save Changes'):t('Add')?></a>
+		</div>
+	<?php  } ?>
 	
 
 </form>

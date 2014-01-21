@@ -55,7 +55,7 @@ foreach($permissions as $pk) {
 	$pk->setPermissionObject($c);
 	?>
 	<tr>
-	<td class="ccm-permission-grid-name" id="ccm-permission-grid-name-<?php echo $pk->getPermissionKeyID()?>"><strong><?php  if ($editPermissions) { ?><a dialog-title="<?php echo $pk->getPermissionKeyName()?>" data-pkID="<?php echo $pk->getPermissionKeyID()?>" data-paID="<?php echo $pk->getPermissionAccessID()?>" onclick="ccm_permissionLaunchDialog(this)" href="javascript:void(0)"><?php  } ?><?php echo $pk->getPermissionKeyName()?><?php  if ($editPermissions) { ?></a><?php  } ?></td>
+	<td class="ccm-permission-grid-name" id="ccm-permission-grid-name-<?php echo $pk->getPermissionKeyID()?>"><strong><?php  if ($editPermissions) { ?><a dialog-title="<?php echo tc('PermissionKeyName', $pk->getPermissionKeyName())?>" data-pkID="<?php echo $pk->getPermissionKeyID()?>" data-paID="<?php echo $pk->getPermissionAccessID()?>" onclick="ccm_permissionLaunchDialog(this)" href="javascript:void(0)"><?php  } ?><?php echo tc('PermissionKeyName', $pk->getPermissionKeyName())?><?php  if ($editPermissions) { ?></a><?php  } ?></strong></td>
 	<td id="ccm-permission-grid-cell-<?php echo $pk->getPermissionKeyID()?>" <?php  if ($editPermissions) { ?>class="ccm-permission-grid-cell"<?php  } ?>><?php echo Loader::element('permission/labels', array('pk' => $pk))?></td>
 	</tr>
 <?php  } ?>

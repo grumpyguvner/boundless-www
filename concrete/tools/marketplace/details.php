@@ -71,7 +71,7 @@ if (!$tp->canInstallPackages()) { ?>
 		<?php  } ?>
 		<div class="ccm-marketplace-item-rating">
 			<?php echo Loader::helper('rating')->outputDisplay($mri->getAverageRating())?>
-			<?php echo $mri->getTotalRatings()?> <?php echo  ($mri->getTotalRatings() == 1) ? t('review') : t('reviews'); ?>
+			<?php echo t2('%d review', '%d reviews', $mri->getTotalRatings(), $mri->getTotalRatings())?>
 			<?php  if ($mri->getTotalRatings() > 0) { ?>
 				<a href="<?php echo $mri->getRemoteReviewsURL()?>" target="_blank" class="ccm-marketplace-item-reviews-link"><?php echo t('Read Reviews')?></a>
 			<?php  } ?>
@@ -80,6 +80,7 @@ if (!$tp->canInstallPackages()) { ?>
 		<div>
 		<h2><?php echo t('Details')?></h2>
 		<p><?php echo $mri->getBody()?></p>	
+		</div>
 		</div>
 	<?php 
 		if ($mri->purchaseRequired()) {

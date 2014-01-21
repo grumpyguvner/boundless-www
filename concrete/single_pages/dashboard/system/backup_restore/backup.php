@@ -154,4 +154,3 @@ if ($tp->canBackup()) {
 	<p><?php echo  t('You do not have permission to create or administer backups.') ?></p>
 	<?php echo  Loader::helper('concrete/dashboard')->getDashboardPaneFooterWrapper(); ?>
 <?php  } ?>
-</div>

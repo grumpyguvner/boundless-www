@@ -267,10 +267,10 @@ $(function() {
     <input type="hidden" name="ocID" value="<?php echo $ocID?>" />
 		<table id="incoming_file_table" class="table table-bordered" width="100%" cellpadding="0" cellspacing="0">
 			<tr>
-				<th width="10%" valign="middle" class="center theader"><input type="checkbox" id="check_all_imports" name="check_all_imports" onclick="ccm_alSelectMultipleIncomingFiles(this);" value="" /></td>
-				<th width="20%" valign="middle" class="center theader"></td>
-				<th width="45%" valign="middle" class="theader"><?php echo t('Filename')?></td>
-				<th width="25%" valign="middle" class="center theader"><?php echo t('Size')?></td>
+				<th width="10%" valign="middle" class="center theader"><input type="checkbox" id="check_all_imports" name="check_all_imports" onclick="ccm_alSelectMultipleIncomingFiles(this);" value="" /></th>
+				<th width="20%" valign="middle" class="center theader"></th>
+				<th width="45%" valign="middle" class="theader"><?php echo t('Filename')?></th>
+				<th width="25%" valign="middle" class="center theader"><?php echo t('Size')?></th>
 			</tr>
 		<?php  foreach($incoming_contents as $filenum=>$file_array) { 
 				$ft = FileTypeList::getType($file_array['name']);
@@ -283,7 +283,7 @@ $(function() {
 				</td>
 				<td width="20%" valign="middle" class="center"><?php echo $ft->getThumbnail(1)?></td>
 				<td width="45%" valign="middle"><?php echo $file_array['name']?></td>
-				<td width="25%" valign="middle" class="center"><?php echo $file_array['size']?><?php echo t('Kb')?></div>
+				<td width="25%" valign="middle" class="center"><?php echo $file_array['size']?><?php echo t('Kb')?></td>
 			</tr>
 		<?php  } ?>
 		</table>

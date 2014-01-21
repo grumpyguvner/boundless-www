@@ -42,7 +42,7 @@ if (count($assignments) > 0) {
 
 ?>
 <?php  if (!$str) { ?>
-	<span style="color: #ccc"><?php echo t('None')?>
+	<span style="color: #ccc"><?php echo t('None')?></span>
 <?php  } else { ?>
 	<?php echo $str?>
 <?php  } ?>

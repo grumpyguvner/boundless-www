@@ -32,8 +32,8 @@ if ($this->controller->getTask() == 'install_package' && $showInstallOptionsScre
 	<label><?php echo t("Swap Site Contents")?></label>
 	<div class="input">
 		<ul class="inputs-list">
-			<li><label><input type="radio" name="pkgDoFullContentSwap" value="0" checked="checked" <?php echo $disabled?> /> <span><?php echo t('No. Do <strong>not</strong> remove any content or files from this website.')?></span></li>
-			<li><label><input type="radio" name="pkgDoFullContentSwap" value="1" <?php echo $disabled?> /> <span><?php echo t('Yes. Reset site content with the content found in this package')?></span></li>
+			<li><label><input type="radio" name="pkgDoFullContentSwap" value="0" checked="checked" <?php echo $disabled?> /> <span><?php echo t('No. Do <strong>not</strong> remove any content or files from this website.')?></span></label></li>
+			<li><label><input type="radio" name="pkgDoFullContentSwap" value="1" <?php echo $disabled?> /> <span><?php echo t('Yes. Reset site content with the content found in this package')?></span></label></li>
 		</ul>
 	</div>
 	</div>
@@ -80,7 +80,7 @@ if ($this->controller->getTask() == 'install_package' && $showInstallOptionsScre
 		<h3><?php echo t('Move package to trash directory on server?')?></h3>
 		<ul class="inputs-list">
 		<li><label><?php echo Loader::helper('form')->checkbox('pkgMoveToTrash', 1)?>
-		<span><?php echo t('Yes, remove the package\'s directory from of the installation directory.')?></span></label>
+		<span><?php echo t('Yes, remove the package\'s directory from the installation directory.')?></span></label>
 		</li>
 		</ul>
 		</div>
@@ -131,7 +131,10 @@ if ($this->controller->getTask() == 'install_package' && $showInstallOptionsScre
 		}
 	}
 	if ($tp->canInstallPackages()) { 
-		$pkgAvailableArray = Package::getAvailablePackages();
+		foreach(Package::getAvailablePackages() as $_pkg) {
+			$_pkg->setupPackageLocalization();
+			$pkgAvailableArray[] = $_pkg;
+		}
 	}
 	
 
@@ -175,7 +178,7 @@ if ($this->controller->getTask() == 'install_package' && $showInstallOptionsScre
 			<table class="table table-bordered table-striped">
 			<tr>
 				<td class="ccm-marketplace-list-thumbnail"><img src="<?php echo $ci->getPackageIconURL($pkg)?>" /></td>
-				<td class="ccm-addon-list-description" style="width: 100%"><h3><?php echo $pkg->getPackageName()?> - <?php echo $pkg->getPackageVersion()?></a></h3><?php echo $pkg->getPackageDescription()?></td>
+				<td class="ccm-addon-list-description" style="width: 100%"><h3><?php echo $pkg->getPackageName()?> - <?php echo $pkg->getPackageVersion()?></h3><?php echo $pkg->getPackageDescription()?></td>
 			</tr>				
 			</table>
 		
@@ -193,8 +196,8 @@ if ($this->controller->getTask() == 'install_package' && $showInstallOptionsScre
 				<?php  foreach($blocks as $bt) {
 					$btIcon = $ci->getBlockTypeIconURL($bt);?>
 					<li class="ccm-block-type ccm-block-type-available">
-						<a style="background-image: url(<?php echo $btIcon?>)" class="ccm-block-type-inner" href="<?php echo $this->url('/dashboard/blocks/types', 'inspect', $bt->getBlockTypeID())?>"><?php echo $bt->getBlockTypeName()?></a>
-						<div class="ccm-block-type-description"  id="ccm-bt-help<?php echo $bt->getBlockTypeID()?>"><?php echo $bt->getBlockTypeDescription()?></div>
+						<a style="background-image: url(<?php echo $btIcon?>)" class="ccm-block-type-inner" href="<?php echo $this->url('/dashboard/blocks/types', 'inspect', $bt->getBlockTypeID())?>"><?php echo t($bt->getBlockTypeName())?></a>
+						<div class="ccm-block-type-description"  id="ccm-bt-help<?php echo $bt->getBlockTypeID()?>"><?php echo t($bt->getBlockTypeDescription())?></div>
 					</li>
 				<?php  } ?>
 				</ul>
@@ -258,7 +261,7 @@ if ($this->controller->getTask() == 'install_package' && $showInstallOptionsScre
 			<?php 	foreach ($pkgArray as $pkg) { ?>
 				<tr>
 					<td class="ccm-marketplace-list-thumbnail"><img src="<?php echo $ci->getPackageIconURL($pkg)?>" /></td>
-					<td class="ccm-addon-list-description"><h3><?php echo $pkg->getPackageName()?> - <?php echo $pkg->getPackageVersion()?></a></h3><?php echo $pkg->getPackageDescription()?>
+					<td class="ccm-addon-list-description"><h3><?php echo $pkg->getPackageName()?> - <?php echo $pkg->getPackageVersion()?></h3><?php echo $pkg->getPackageDescription()?>
 
 					</td>
 					<td class="ccm-marketplace-list-install-button"><?php echo $ch->button(t("Edit"), View::url('/dashboard/extend/install', 'inspect_package', $pkg->getPackageID()), "")?></td>					

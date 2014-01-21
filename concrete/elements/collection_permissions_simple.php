@@ -38,11 +38,13 @@ if ($cp->canEditPagePermissions()) {
 	foreach($gIDs as $g) {
 		$gArray[] = Group::getByID($g['gID']);
 	}
+
+	$rel = Loader::helper('security')->sanitizeString($_REQUEST['rel']);
 ?>
 
 <div class="ccm-ui">
 <form method="post" id="ccmPermissionsForm" name="ccmPermissionsForm" action="<?php echo $c->getCollectionAction()?>">
-<input type="hidden" name="rel" value="<?php echo $_REQUEST['rel']?>" />
+<input type="hidden" name="rel" value="<?php  echo h($rel); ?>" />
 
 <div class="clearfix">
 <h3><?php echo t('Who can view this page?')?></h3>

@@ -58,7 +58,7 @@
 		
 		
 
-		<div id="ccm-file-set-permissions-wrapper" <?php  if (!$fs->overrideGlobalPermissions()) { ?> style="display: none" <?php  } ?>>
+		<div id="ccm-permission-list-form" <?php  if (!$fs->overrideGlobalPermissions()) { ?> style="display: none" <?php  } ?>>
 
 		<?php  Loader::element('permission/lists/file_set', array("fs" => $fs)); ?>
 		

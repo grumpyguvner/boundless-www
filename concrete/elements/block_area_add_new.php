@@ -5,7 +5,7 @@ $blockTypes = $btl->getBlockTypeList();
 $dsh = Loader::helper('concrete/dashboard');
 $dashboardBlockTypes = array();
 if ($dsh->inDashboard()) {
-	$dashboardBlockTypes = BlockTypeList::getDashboardBlockTypes($ap);
+	$dashboardBlockTypes = BlockTypeList::getDashboardBlockTypes();
 }
 $blockTypes = array_merge($blockTypes, $dashboardBlockTypes);
 $ci = Loader::helper('concrete/urls');
@@ -188,17 +188,17 @@ $(function() {
 			?>	
 			<li class="ccm-block-type ccm-block-type-available">
 				<?php  if (!$bt->hasAddTemplate()) { ?>
-					<a style="background-image: url(<?php echo $btIcon?>)" href="javascript:void(0)" onclick="ccmBlockTypeResetKeys(); jQuery.fn.dialog.showLoader(); $.get('<?php echo $bt->getBlockAddAction($a)?>&processBlock=1&add=1', function(r) { ccm_parseBlockResponse(r, false, 'add'); })" class="ccm-block-type-inner"><?php echo $bt->getBlockTypeName()?></a>
+					<a style="background-image: url(<?php echo $btIcon?>)" href="javascript:void(0)" onclick="ccmBlockTypeResetKeys(); jQuery.fn.dialog.showLoader(); $.get('<?php echo $bt->getBlockAddAction($a)?>&processBlock=1&add=1', function(r) { ccm_parseBlockResponse(r, false, 'add'); })" class="ccm-block-type-inner"><?php echo t($bt->getBlockTypeName())?></a>
 				<?php  } else { ?>
-					<a onclick="ccmBlockTypeResetKeys()" dialog-on-destroy="ccmBlockTypeMapKeys()" class="dialog-launch ccm-block-type-inner" dialog-on-close="ccm_blockWindowAfterClose()" dialog-append-buttons="true" dialog-modal="false" dialog-width="<?php echo $bt->getBlockTypeInterfaceWidth()?>" dialog-height="<?php echo $bt->getBlockTypeInterfaceHeight()+20?>" style="background-image: url(<?php echo $btIcon?>)" dialog-title="<?php echo t('Add')?> <?php echo $bt->getBlockTypeName()?>" href="<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/add_block_popup.php?cID=<?php echo $c->getCollectionID()?>&btID=<?php echo $bt->getBlockTypeID()?>&arHandle=<?php echo urlencode($a->getAreaHandle())?>"><?php echo $bt->getBlockTypeName()?></a>
+					<a onclick="ccmBlockTypeResetKeys()" dialog-on-destroy="ccmBlockTypeMapKeys()" class="dialog-launch ccm-block-type-inner" dialog-on-close="ccm_blockWindowAfterClose()" dialog-append-buttons="true" dialog-modal="false" dialog-width="<?php echo $bt->getBlockTypeInterfaceWidth()?>" dialog-height="<?php echo $bt->getBlockTypeInterfaceHeight()+20?>" style="background-image: url(<?php echo $btIcon?>)" dialog-title="<?php echo tc('%s is a block type name', 'Add %s', t($bt->getBlockTypeName()))?>" href="<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/add_block_popup.php?cID=<?php echo $c->getCollectionID()?>&btID=<?php echo $bt->getBlockTypeID()?>&arHandle=<?php echo urlencode($a->getAreaHandle())?>"><?php echo t($bt->getBlockTypeName())?></a>
 				<?php  } ?>
-				<div class="ccm-block-type-description"  id="ccm-bt-help<?php echo $bt->getBlockTypeID()?>"><?php echo $bt->getBlockTypeDescription()?></div>
+				<div class="ccm-block-type-description"  id="ccm-bt-help<?php echo $bt->getBlockTypeID()?>"><?php echo t($bt->getBlockTypeDescription())?></div>
 			</li>
 			<?php 
 			
 			/* ?>	
 			<div class="ccm-block-type-grid-entry">
-				<a class="dialog-launch ccm-block-type-inner" dialog-modal="false" dialog-width="<?php echo $bt->getBlockTypeInterfaceWidth()?>" dialog-height="<?php echo $bt->getBlockTypeInterfaceHeight()?>" style="background-image: url(<?php echo $btIcon?>)" dialog-title="<?php echo t('Add')?> <?php echo $bt->getBlockTypeName()?>" href="<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/add_block_popup.php?cID=<?php echo $c->getCollectionID()?>&btID=<?php echo $bt->getBlockTypeID()?>&arHandle=<?php echo $a->getAreaHandle()?>"><?php echo $bt->getBlockTypeName()?></a>
+				<a class="dialog-launch ccm-block-type-inner" dialog-modal="false" dialog-width="<?php echo $bt->getBlockTypeInterfaceWidth()?>" dialog-height="<?php echo $bt->getBlockTypeInterfaceHeight()?>" style="background-image: url(<?php echo $btIcon?>)" dialog-title="<?php echo tc('%s is a block type name', 'Add %s', t($bt->getBlockTypeName()))?>" href="<?php echo REL_DIR_FILES_TOOLS_REQUIRED?>/add_block_popup.php?cID=<?php echo $c->getCollectionID()?>&btID=<?php echo $bt->getBlockTypeID()?>&arHandle=<?php echo $a->getAreaHandle()?>"><?php echo t($bt->getBlockTypeName())?></a>
 			</div> <?php  */ ?>
 			
 		<?php  }

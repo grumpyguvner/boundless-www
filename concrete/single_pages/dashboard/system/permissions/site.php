@@ -68,6 +68,5 @@ $form = Loader::helper('form');
 </div>
 
 <?php endif?>
-</div>
 </form>
 <?php echo $h->getDashboardPaneFooterWrapper(false);?>

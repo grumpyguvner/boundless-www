@@ -20,6 +20,9 @@
 		$u = new User();
 		$u->refreshCollectionEdit($c);
 	}
+
+	$securityHelper = Loader::helper('security');
+
 	if ($_REQUEST['btask'] && $valt->validate()) {
 	
 		// these are tasks dealing with blocks (moving up, down, removing)
@@ -28,11 +31,65 @@
 			case 'ajax_do_arrange': /* called via ajax */
 				if ($cp->canEditPageContents()) {
 					$nvc = $c->getVersionToModify();
-					$nvc->processArrangement($_POST['area']);
+					$doProcessArrangement = true;
+					if (PERMISSIONS_MODEL == 'advanced') {
+						// first, we check to see if we have permissions to edit the area contents for the source area.
+						$arHandle = Area::getAreaHandleFromID($_POST['sourceBlockAreaID']);
+						$ar = Area::getOrCreate($nvc, $arHandle);
+						$ap = new Permissions($ar);
+						if (!$ap->canEditAreaContents()) {
+							$r = new stdClass;
+							$r->error = true;
+							$doProcessArrangement = false;
+							$r->message = t('You may not arrange the contents of area %s.', $arHandle);
+						} else {
+							// now we get further in. We check to see if we're dealing with both a source AND a destination area.
+							// if so, we check the area permissions for the destination area.
+							if ($_POST['sourceBlockAreaID'] != $_POST['destinationBlockAreaID']) {
+								$destAreaHandle = Area::getAreaHandleFromID($_POST['destinationBlockAreaID']);
+								$destArea = Area::getOrCreate($nvc, $destAreaHandle);
+								$destAP = new Permissions($destArea);
+								if (!$destAP->canEditAreaContents()) {
+									$r = new stdClass;
+									$r->error = true;
+									$doProcessArrangement = false;
+									$r->message = t('You may not arrange the contents of area %s.', $destAreaHandle);
+								} else {
+									// we're not done yet. Now we have to check to see whether this user has permission to add
+									// a block of this type to the destination area.
+									$b = Block::getByID($_REQUEST['sourceBlockID'], $nvc, $arHandle);
+									$bt = $b->getBlockTypeObject();
+									if (!$destAP->canAddBlock($bt)) {
+										$doProcessArrangement = false;
+										$r = new stdClass;
+										$r->error = true;
+										$r->message = t('You may not add %s to area %s.', t($bt->getBlockTypeName()), $destAreaHandle);
+									}
+								}
+							}							
+						}
+
+						// now, if we get down here and $doProcessArrangement is still set to true, we perform the arrangement
+						// it will be set to true if we're in simple permissions mode, or if we've passed all the checks
+					}
+
+					if ($doProcessArrangement) {
+						$nvc->processArrangement($_POST['area']);
+					}
+
+					if (!is_object($r)) {
+						$r = new stdClass;
+						$r->error = false;
+					}
+
+				} else {
+					$r = new stdClass;
+					$r->error = true;
+					$r->message = t('Access Denied');
 				}
 				
+				print Loader::helper('json')->encode($r);
 				exit;
-				
 				break;
 			case 'remove':
 				$a = Area::get($c, $_REQUEST['arHandle']);
@@ -63,8 +120,10 @@
 						if (isset($_POST['isAjax'])) {
 							exit;
 						}
+
+						$cID = $securityHelper->sanitizeInt($_GET['cID']);
 						
-						header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $_GET['cID'] . '&mode=edit' . $step);
+						header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $cID . '&mode=edit' . $step);
 						exit;
 					}
 				}
@@ -126,7 +185,9 @@
 							}
 						}
 
-						header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $_GET['cID'] . '&mode=edit' . $step);				
+						$cID = $securityHelper->sanitizeInt($_GET['cID']);
+
+						header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $cID . '&mode=edit' . $step);				
 					}
 				}
 				break;
@@ -270,6 +331,9 @@
 							// which handles permissions and everything
 							$p = new Permissions($b);
 							if ($p->canViewBlock()) {
+								if (!is_object($b)) {
+									exit;
+								}
 								$action = $b->passThruBlock($_REQUEST['method']);
 							}
 						}
@@ -366,7 +430,9 @@
 						}
 					}
 
-					header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $_GET['cID'] . '&mode=edit' . $step);
+					$cID = $securityHelper->sanitizeInt($_GET['cID']);
+
+					header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $cID . '&mode=edit' . $step);
 					exit;
 				}
 				break; 
@@ -442,9 +508,13 @@
 						//see above
 					}elseif( $cvalID ){
 						//get the cval of the record that corresponds to this version & area 
-						$vals = array( $nvc->getCollectionID(), $nvc->getVersionID(), $_GET['arHandle'], intval($originalLayoutID) );
-						$cvalID = intval($db->getOne('SELECT cvalID FROM CollectionVersionAreaLayouts WHERE cID=? AND cvID=? AND arHandle=? AND layoutID=? ',$vals));	
+						if (isset($_REQUEST['areaNameNumber']) && intval($_REQUEST['areaNameNumber'])){
+							//$vals = array( $nvc->getCollectionID(), $nvc->getVersionID(), $_GET['arHandle'], intval($originalLayoutID) );
+							//$cvalID = intval($db->getOne('SELECT cvalID FROM CollectionVersionAreaLayouts WHERE cID=? AND cvID=? AND arHandle=? AND layoutID=? ',$vals));
+							$vals = array( $nvc->getCollectionID(), $nvc->getVersionID(), $_GET['arHandle'], intval($_REQUEST['areaNameNumber']) );
+							$cvalID = intval($db->getOne('SELECT cvalID FROM CollectionVersionAreaLayouts WHERE cID=? AND cvID=? AND arHandle=? AND areaNameNumber=? ',$vals));	
 						if($updateLayoutId) $nvc->updateAreaLayoutId( $cvalID, $layout->layoutID);  
+						}
 					}else{  
 						$nvc->addAreaLayout($area, $layout, $position);  
 					} 					
@@ -454,7 +524,9 @@
 						if(strlen(trim($newPresetName))) LayoutPreset::add(trim($newPresetName), $layout);
 					}	
 
-					header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $_GET['cID'] . '&mode=edit' . $step);
+					$cID = $securityHelper->sanitizeInt($_GET['cID']);
+
+					header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $cID . '&mode=edit' . $step);
 					exit;
 				}				
 				break;					
@@ -467,7 +539,7 @@
 			case 'delete':
 				if ($cp->canDeletePage() && $c->getCollectionID() != '1' && (!$c->isMasterCollection())) {
 					$children = $c->getNumChildren();
-					if ($children == 0 || $cp->canApprovePageVersions()) {
+					if ($children == 0 || $u->isSuperUser()) {
 						$obj = new stdClass;
 
 						if ($c->isExternalLink()) {
@@ -599,7 +671,8 @@
 						$pc->delete();
 					}
 					if ($pcID && ($_REQUEST['sbURL'])) {
-						header('Location: ' . BASE_URL . $_GET['sbURL']);
+						$sbURL = $securityHelper->sanitizeInt($_GET['sbURL']);
+						header('Location: ' . BASE_URL . $sbURL);
 						exit;
 					}
 				//global scrapbooks
@@ -903,7 +976,8 @@
 					print Loader::helper('json')->encode($obj);
 					exit;
 				} else {
-					header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $_GET['cID'] . '&mode=edit' . $step);
+					$cID = $securityHelper->sanitizeInt($_GET['cID']);
+					header('Location: ' . BASE_URL . DIR_REL . '/' . DISPATCHER_FILENAME . '?cID=' . $cID . '&mode=edit' . $step);
 					exit;
 				}
 			}		
@@ -1114,7 +1188,7 @@
 
 					if ($_POST['rel'] == 'SITEMAP') { 
 						$u = new User();
-						if ($cp->canApprovePageVersions()) {
+						if ($cp->canApprovePageVersions() && SITEMAP_APPROVE_IMMEDIATELY) {
 							$pkr = new ApprovePagePageWorkflowRequest();
 							$pkr->setRequestedPage($nc);
 							$v = CollectionVersion::get($nc, "RECENT");

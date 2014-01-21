@@ -13,6 +13,7 @@ if (is_object($trash) && !$trash->isError()) {
 	$pl = new PageList();
 	$pl->filterByParentID($trash->getCollectionID());
 	$pl->includeInactivePages();
+	$pl->displayUnapprovedPages();
 	$pages = $pl->get();	
 	foreach($pages as $pc) {
 		$cp = new Permissions($pc);
@@ -23,11 +24,7 @@ if (is_object($trash) && !$trash->isError()) {
 	}
 }
 
-if ($i == 1) {
-	$message = t('1 page deleted.');
-} else {
-	$message = t('%s pages deleted', $i);
-}
+$message = t2('%d page deleted.', '%d pages deleted.', $i, $i);
 
 $obj = new stdClass;
 $obj->message = $message;

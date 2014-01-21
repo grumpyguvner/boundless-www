@@ -51,7 +51,7 @@ if (count($attribs) > 0) { ?>
 		foreach($sets as $as) { ?>
 	
 		
-		<h3><?php echo $as->getAttributeSetName()?></h3>
+		<h3><?php echo tc('AttributeSetName', $as->getAttributeSetName())?></h3>
 	
 		<?php 
 		
@@ -69,7 +69,7 @@ if (count($attribs) > 0) { ?>
 			foreach($setattribs as $ak) { ?>
 			
 			<div class="ccm-attribute" id="akID_<?php echo $as->getAttributeSetID()?>_<?php echo $ak->getAttributeKeyID()?>">
-				<img class="ccm-attribute-icon" src="<?php echo $ak->getAttributeKeyIconSRC()?>" width="16" height="16" /><a href="<?php echo $this->url($editURL, 'edit', $ak->getAttributeKeyID())?>"><?php echo $ak->getAttributeKeyName()?></a>
+				<img class="ccm-attribute-icon" src="<?php echo $ak->getAttributeKeyIconSRC()?>" width="16" height="16" /><a href="<?php echo $this->url($editURL, 'edit', $ak->getAttributeKeyID())?>"><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></a>
 			</div>
 	
 
@@ -91,7 +91,7 @@ if (count($attribs) > 0) { ?>
 			foreach($unsetattribs as $ak) { ?>
 	
 			<div class="ccm-attribute" id="akID_<?php echo $as->getAttributeSetID()?>_<?php echo $ak->getAttributeKeyID()?>">
-				<img class="ccm-attribute-icon" src="<?php echo $ak->getAttributeKeyIconSRC()?>" width="16" height="16" /><a href="<?php echo $this->url($editURL, 'edit', $ak->getAttributeKeyID())?>"><?php echo $ak->getAttributeKeyName()?></a>
+				<img class="ccm-attribute-icon" src="<?php echo $ak->getAttributeKeyIconSRC()?>" width="16" height="16" /><a href="<?php echo $this->url($editURL, 'edit', $ak->getAttributeKeyID())?>"><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></a>
 			</div>
 	
 
@@ -109,7 +109,7 @@ if (count($attribs) > 0) { ?>
 		<?php 
 		foreach($attribs as $ak) { ?>
 		<div class="ccm-attribute" id="akID_<?php echo $ak->getAttributeKeyID()?>">
-			<img class="ccm-attribute-icon" src="<?php echo $ak->getAttributeKeyIconSRC()?>" width="16" height="16" /><a href="<?php echo $this->url($editURL, 'edit', $ak->getAttributeKeyID())?>"><?php echo $ak->getAttributeKeyName()?></a>
+			<img class="ccm-attribute-icon" src="<?php echo $ak->getAttributeKeyIconSRC()?>" width="16" height="16" /><a href="<?php echo $this->url($editURL, 'edit', $ak->getAttributeKeyID())?>"><?php echo tc('AttributeKeyName', $ak->getAttributeKeyName())?></a>
 		</div>
 		
 		<?php  } ?>
