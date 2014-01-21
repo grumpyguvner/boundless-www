@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<concrete5-cif version="1.0">
+	<blocktypes>
+        <blocktype handle="date_archive" package=""/>
+    </blocktypes>
+    <pagetypes>
+        <pagetype icon="template2.png" handle="home" name="Home" package="" />
+        <pagetype icon="template2.png" handle="portfolio" name="Portfolio" package="" />
+        <pagetype icon="right_sidebar.png" handle="blog_entry" name="Blog Entry" package="" />
+        <pagetype icon="main.png" handle="full" name="Full" package="" />
+        <pagetype icon="template1.png" handle="left_sidebar" name="Left Sidebar" package="" />
+        <pagetype icon="right_sidebar.png" handle="right_sidebar" name="Right Sidebar" package="" />
+    </pagetypes>
+</concrete5-cif>

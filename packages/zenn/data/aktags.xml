@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<concrete5-cif version="1.0">
+    <attributekeys>
+        <attributekey handle="tags" name="Tags" package="" searchable="1" indexed="1" type="select" category="collection">
+            <type allow-multiple-values="1" display-order="display_asc" allow-other-values="1"/>
+        </attributekey>
+    </attributekeys>
+</concrete5-cif>

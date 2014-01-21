@@ -1,0 +1,116 @@
+// Make sure the charset is set appropriately
+@charset "UTF-8";
+
+// This includes all of the foundation global elements that are needed to work with any of the other files.
+@import "foundation/variables";
+
+body {
+  padding-top: 47px;
+}
+
+#header {
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  background: #fff;
+}
+
+#footer {
+  margin-bottom: 30px;
+  margin-top: 30px;
+  .footer-link {
+    padding-top: 15px;
+    border-top: 1px solid #EEE;
+    font-size: 14px;
+    text-align: right;
+  }
+}
+
+#porfolio {
+  margin-top: 40px;
+  .project-info {
+    margin-top: 20px;
+    .project-title {
+      text-align: right
+    }
+    .project-description {
+      padding-left: 20px;
+      border-left: 5px solid #000;
+    }
+  }
+}
+
+#blog {
+  margin-top: 40px;
+  .post {
+    .post-title {
+      text-transform: uppercase;
+    }
+  }
+}
+
+.page-title {
+  padding: 5px 0 5px 10px;
+  border-bottom: 5px solid #000;
+  margin: 40px 0 60px;
+  text-transform: uppercase;
+}
+
+.main-block {
+  margin-bottom: 20px;
+  .block-title {
+    margin: 10px 0 30px;
+    text-transform: uppercase;
+    text-align: center;
+    font-size: emCalc(18px);
+  }
+}
+
+.side-block {
+  margin-bottom: 10px;
+  .block-title {
+    text-transform: uppercase;
+    border-left: 5px solid #000;
+    padding-left: 10px;
+  }
+}
+
+
+.post-list {
+  .post {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eee;
+    .post-title {
+      a {
+        color: #000;
+        text-transform: uppercase;
+        &:hover {
+          color: #e21929;
+        }
+      }
+    }
+  }
+}
+
+.post-grid {
+  .post {
+    .post-thumbnail {
+      opacity: 0.75;
+      &:hover {
+        opacity: 1;
+      }
+    }
+    .post-title {
+      text-align: center;
+      a {
+        color: #000;
+        text-transform: uppercase;
+        &:hover {
+          color: #e21929;
+        }
+      }
+    }
+  }
+}
+
+
+

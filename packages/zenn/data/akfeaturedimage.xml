@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<concrete5-cif version="1.0">
+    <attributekeys>
+    	<attributekey handle="featured_image" name="Featured Image" package="" searchable="0" indexed="0" type="image_file" category="collection" />
+    </attributekeys>
+</concrete5-cif>

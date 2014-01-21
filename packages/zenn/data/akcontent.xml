@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<concrete5-cif version="1.0">
+    <attributekeys>
+    	<attributekey handle="content" name="Content" package="" searchable="1" indexed="1" type="textarea" category="collection">
+    		<type display-mode="rich_text_advanced" />
+    	</attributekey>
+    </attributekeys>
+</concrete5-cif>

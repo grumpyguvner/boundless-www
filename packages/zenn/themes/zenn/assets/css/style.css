@@ -1,0 +1,119 @@
+/* line 7, ../scss/style.scss */
+body {
+  padding-top: 47px;
+}
+
+/* line 11, ../scss/style.scss */
+#header {
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  background: #fff;
+}
+
+/* line 17, ../scss/style.scss */
+#footer {
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+/* line 20, ../scss/style.scss */
+#footer .footer-link {
+  padding-top: 15px;
+  border-top: 1px solid #EEE;
+  font-size: 14px;
+  text-align: right;
+}
+
+/* line 28, ../scss/style.scss */
+#porfolio {
+  margin-top: 40px;
+}
+/* line 30, ../scss/style.scss */
+#porfolio .project-info {
+  margin-top: 20px;
+}
+/* line 32, ../scss/style.scss */
+#porfolio .project-info .project-title {
+  text-align: right;
+}
+/* line 35, ../scss/style.scss */
+#porfolio .project-info .project-description {
+  padding-left: 20px;
+  border-left: 5px solid #000;
+}
+
+/* line 42, ../scss/style.scss */
+#blog {
+  margin-top: 40px;
+}
+/* line 45, ../scss/style.scss */
+#blog .post .post-title {
+  text-transform: uppercase;
+}
+
+/* line 51, ../scss/style.scss */
+.page-title {
+  padding: 5px 0 5px 10px;
+  border-bottom: 5px solid #000;
+  margin: 40px 0 60px;
+  text-transform: uppercase;
+}
+
+/* line 58, ../scss/style.scss */
+.main-block {
+  margin-bottom: 20px;
+}
+/* line 60, ../scss/style.scss */
+.main-block .block-title {
+  margin: 10px 0 30px;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 1.28571em;
+}
+
+/* line 68, ../scss/style.scss */
+.side-block {
+  margin-bottom: 10px;
+}
+/* line 70, ../scss/style.scss */
+.side-block .block-title {
+  text-transform: uppercase;
+  border-left: 5px solid #000;
+  padding-left: 10px;
+}
+
+/* line 79, ../scss/style.scss */
+.post-list .post {
+  margin-bottom: 30px;
+  border-bottom: 2px solid #eee;
+}
+/* line 83, ../scss/style.scss */
+.post-list .post .post-title a {
+  color: #000;
+  text-transform: uppercase;
+}
+/* line 86, ../scss/style.scss */
+.post-list .post .post-title a:hover {
+  color: #e21929;
+}
+
+/* line 96, ../scss/style.scss */
+.post-grid .post .post-thumbnail {
+  opacity: 0.75;
+}
+/* line 98, ../scss/style.scss */
+.post-grid .post .post-thumbnail:hover {
+  opacity: 1;
+}
+/* line 102, ../scss/style.scss */
+.post-grid .post .post-title {
+  text-align: center;
+}
+/* line 104, ../scss/style.scss */
+.post-grid .post .post-title a {
+  color: #000;
+  text-transform: uppercase;
+}
+/* line 107, ../scss/style.scss */
+.post-grid .post .post-title a:hover {
+  color: #e21929;
+}
